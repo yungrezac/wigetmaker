@@ -244,34 +244,60 @@
             <!-- Decorative gradient -->
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
             
-            <div class="text-center mb-8 mt-2">
+            <div class="text-center mb-6 mt-2">
                 <div class="w-16 h-16 bg-blue-500/10 text-blue-500 rounded-2xl mx-auto flex items-center justify-center mb-4">
                     <i class="fas fa-video text-2xl"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-white">Вход в IMWIGET</h2>
                 <p class="text-slate-400 text-sm mt-1">Авторизуйтесь для управления виджетами</p>
             </div>
+
+            <!-- Tab Bar -->
+            <div class="flex p-1 bg-slate-950/50 rounded-xl mb-6 border border-slate-800 relative">
+                <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-slate-800 text-white shadow shadow-black/20">Вход</button>
+                <button id="tab-signup" onclick="switchAuthTab('signup')" class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white">Регистрация</button>
+            </div>
             
-            <div class="space-y-5">
+            <div id="auth-error" class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg hidden text-center mb-4"></div>
+
+            <!-- Login Form -->
+            <div id="form-login" class="space-y-5 block">
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
-                    <input type="email" id="auth-email" placeholder="your@email.com" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white rounded-xl px-4 py-3 outline-none transition-all">
+                    <input type="email" id="login-email" placeholder="your@email.com" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white rounded-xl px-4 py-3 outline-none transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1.5">Пароль</label>
-                    <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white rounded-xl px-4 py-3 outline-none transition-all">
+                    <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white rounded-xl px-4 py-3 outline-none transition-all">
                 </div>
-                <div id="auth-error" class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg hidden text-center"></div>
-                
                 <div class="pt-2">
                     <button onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-semibold transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]">
                         Войти
                     </button>
-                    <button onclick="handleSignup()" class="w-full bg-transparent border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white py-3 rounded-xl font-medium transition-all mt-3">
+                </div>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="form-signup" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
+                    <input type="email" id="signup-email" placeholder="your@email.com" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white rounded-xl px-4 py-2.5 outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1.5">Пароль</label>
+                    <input type="password" id="signup-password" placeholder="Мин. 6 символов" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white rounded-xl px-4 py-2.5 outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1.5">Повторите пароль</label>
+                    <input type="password" id="signup-password-confirm" placeholder="••••••••" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white rounded-xl px-4 py-2.5 outline-none transition-all">
+                </div>
+                <div class="pt-2">
+                    <button onclick="handleSignup()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-semibold transition-all shadow-[0_0_15px_rgba(79,70,229,0.3)]">
                         Создать аккаунт
                     </button>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -322,7 +348,6 @@
         var debounceTimer = null;
         var loadedFonts = new Set();
         
-        // Base styling templates for inputs to maintain beautiful UI
         const inputClass = "w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 text-white rounded-lg px-3 py-2 text-sm outline-none transition-all";
         const labelClass = "block text-xs font-medium text-slate-400 mb-1.5";
 
@@ -386,6 +411,34 @@
             }
         });
 
+        // Tab Switching Logic
+        function switchAuthTab(tab) {
+            const tabLogin = document.getElementById('tab-login');
+            const tabSignup = document.getElementById('tab-signup');
+            const formLogin = document.getElementById('form-login');
+            const formSignup = document.getElementById('form-signup');
+            const errDiv = document.getElementById('auth-error');
+
+            errDiv.classList.add('hidden'); // Clear errors on switch
+            errDiv.textContent = "";
+
+            if (tab === 'login') {
+                tabLogin.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-slate-800 text-white shadow shadow-black/20";
+                tabSignup.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white";
+                formLogin.classList.remove('hidden');
+                formLogin.classList.add('block');
+                formSignup.classList.remove('block');
+                formSignup.classList.add('hidden');
+            } else {
+                tabSignup.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-slate-800 text-white shadow shadow-black/20";
+                tabLogin.className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white";
+                formSignup.classList.remove('hidden');
+                formSignup.classList.add('block');
+                formLogin.classList.remove('block');
+                formLogin.classList.add('hidden');
+            }
+        }
+
         async function checkAuth() {
             const { data: { session } } = await supabase.auth.getSession();
             handleAuthChange(session);
@@ -407,20 +460,49 @@
         }
 
         async function handleLogin() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
             if(!email || !password) return showError("Введите email и пароль");
+            
+            const btn = document.querySelector('#form-login button');
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            
             const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) showError(error.message);
+            if (error) {
+                showError("Ошибка входа: " + error.message);
+                btn.innerHTML = 'Войти';
+            }
         }
 
         async function handleSignup() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const passwordConfirm = document.getElementById('signup-password-confirm').value;
+
             if(!email || !password) return showError("Введите email и пароль");
-            const { error } = await supabase.auth.signUp({ email, password });
-            if (error) showError(error.message);
-            else showMessage("Успех", "Регистрация успешна. Проверьте почту или войдите.");
+            if(password.length < 6) return showError("Пароль должен содержать минимум 6 символов");
+            if(password !== passwordConfirm) return showError("Пароли не совпадают!");
+
+            const btn = document.querySelector('#form-signup button');
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+
+            const { data, error } = await supabase.auth.signUp({ email, password });
+            
+            if (error) {
+                showError(error.message);
+                btn.innerHTML = 'Создать аккаунт';
+            } else {
+                // Пытаемся сразу войти (на случай, если не требуется подтверждение email)
+                const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+                
+                if (loginError) {
+                    // Если войти не удалось (вероятнее всего требуется подтверждение email)
+                    btn.innerHTML = 'Создать аккаунт';
+                    switchAuthTab('login');
+                    showMessage("Почти готово!", "Регистрация прошла успешно. Пожалуйста, проверьте вашу электронную почту и подтвердите аккаунт для входа.");
+                }
+                // Если вход успешен, сработает слушатель onAuthStateChange, и окно само закроется
+            }
         }
 
         async function handleLogout() {
@@ -428,23 +510,32 @@
             if (error) {
                 alertCustom("Ошибка", "Не удалось выйти из аккаунта: " + error.message);
             } else {
-                // Очищаем текущие данные приложения
                 widgets = [];
                 currentWidget = null;
-                
-                // Скрываем редактор и показываем пустое состояние
                 document.getElementById('editor-panel').classList.add('hidden');
                 document.getElementById('editor-panel').classList.remove('flex');
                 document.getElementById('empty-state').classList.remove('hidden');
-                
-                // Очищаем список виджетов
                 document.getElementById('widgets-list').innerHTML = '';
+                
+                // Очищаем формы
+                document.getElementById('login-email').value = '';
+                document.getElementById('login-password').value = '';
+                document.getElementById('signup-email').value = '';
+                document.getElementById('signup-password').value = '';
+                document.getElementById('signup-password-confirm').value = '';
+                switchAuthTab('login'); // Возвращаем на вкладку логина по умолчанию
             }
         }
 
         function showError(msg) {
             const errDiv = document.getElementById('auth-error');
-            errDiv.textContent = msg;
+            
+            // Ручной перевод частых ошибок Supabase
+            let translatedMsg = msg;
+            if(msg.includes("Invalid login credentials")) translatedMsg = "Неверный логин или пароль";
+            if(msg.includes("User already registered")) translatedMsg = "Пользователь с таким email уже существует";
+            
+            errDiv.textContent = translatedMsg;
             errDiv.classList.remove('hidden');
         }
 
@@ -1109,7 +1200,7 @@
             document.getElementById('msg-text').textContent = text;
             const icon = document.getElementById('msg-icon');
             icon.className = title.includes('Ошибка') ? 'fas fa-exclamation-triangle text-5xl mb-4 text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]' :
-                             title.includes('Успех') || title.includes('Скопировано') ? 'fas fa-check-circle text-5xl mb-4 text-green-500 drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]' :
+                             title.includes('Успех') || title.includes('Скопировано') || title.includes('готово') ? 'fas fa-check-circle text-5xl mb-4 text-green-500 drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]' :
                              'fas fa-info-circle text-5xl mb-4 text-blue-500 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]';
             document.getElementById('msg-modal').classList.add('active');
         }
