@@ -7,11 +7,10 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // Note: For this specific request, the user provided a Supabase URL and Key.
-        // I will use the official Supabase JS client instead of Firebase to meet their exact requirements.
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -20,14 +19,13 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a; /* Slate 900 */
-            color: #f8fafc; /* Slate 50 */
+            background-color: #0f172a;
+            color: #f8fafc;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #1e293b; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
@@ -39,7 +37,6 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Input styling */
         input[type="text"], input[type="number"], select, input[type="password"], input[type="email"] {
             background-color: #334155;
             border: 1px solid #475569;
@@ -54,34 +51,39 @@
             border-color: #3b82f6;
         }
 
-        /* =========================================
-           WIDGET RENDERER STYLES (For OBS View)
-           ========================================= */
         #obs-view {
             width: 100vw;
             height: 100vh;
             background: transparent;
             overflow: hidden;
-            display: none; /* Hidden by default, shown if URL has ?widgetId=... */
+            display: none;
             position: absolute;
             top: 0; left: 0;
         }
 
-        /* Marquee Styles */
-        .marquee-container {
+        .marquee-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center rows vertically */
+        }
+
+        .marquee-track-container {
             width: 100%;
             white-space: nowrap;
             overflow: hidden;
             box-sizing: border-box;
             display: flex;
             align-items: center;
-            height: 100%;
         }
         
+        /* Using two content blocks for seamless looping */
         .marquee-content {
-            display: inline-block;
-            padding-left: 100%; /* Start offscreen right */
+            display: inline-flex;
+            align-items: center;
             will-change: transform;
+            padding-right: 50px; /* Gap between repeats */
         }
 
         @keyframes marquee-left {
@@ -93,30 +95,57 @@
             100% { transform: translateX(0); }
         }
 
-        /* Marquee Effects */
         .effect-glow { text-shadow: 0 0 10px currentColor, 0 0 20px currentColor; }
-        .effect-shadow { text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
-        .effect-outline { -webkit-text-stroke: 1px black; }
+        .effect-shadow { text-shadow: 4px 4px 8px rgba(0,0,0,0.8); }
+        .effect-outline { -webkit-text-stroke: var(--outline-width, 1px) var(--outline-color, #000); }
+        .effect-glow-outline { 
+            -webkit-text-stroke: var(--outline-width, 1px) var(--outline-color, #000);
+            text-shadow: 0 0 15px currentColor; 
+        }
 
-        /* Slideshow Styles */
         .slideshow-container {
             width: 100%;
             height: 100%;
             position: relative;
+            overflow: hidden;
         }
         .slideshow-slide {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background-size: contain;
-            background-position: center;
             background-repeat: no-repeat;
+            background-position: center;
             opacity: 0;
-            transition: opacity 1s ease-in-out;
+            z-index: 0;
         }
-        .slideshow-slide.active { opacity: 1; }
+
+        /* Transition Classes */
+        /* Fade */
+        .trans-fade { transition: opacity 1s ease-in-out; }
+        .trans-fade.active { opacity: 1; z-index: 1; }
         
-        /* Modal */
+        /* Slide Left/Right */
+        .trans-slide-left { transform: translateX(100%); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        .trans-slide-left.active { opacity: 1; transform: translateX(0); z-index: 1; }
+        .trans-slide-right { transform: translateX(-100%); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        .trans-slide-right.active { opacity: 1; transform: translateX(0); z-index: 1; }
+        
+        /* Slide Up/Down */
+        .trans-slide-up { transform: translateY(100%); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        .trans-slide-up.active { opacity: 1; transform: translateY(0); z-index: 1; }
+        .trans-slide-down { transform: translateY(-100%); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        .trans-slide-down.active { opacity: 1; transform: translateY(0); z-index: 1; }
+
+        /* Zoom */
+        .trans-zoom-in { transform: scale(0.5); opacity: 0; transition: all 1.2s ease; }
+        .trans-zoom-in.active { opacity: 1; transform: scale(1); z-index: 1; }
+        .trans-zoom-out { transform: scale(1.5); opacity: 0; transition: all 1.2s ease; }
+        .trans-zoom-out.active { opacity: 1; transform: scale(1); z-index: 1; }
+
+        /* Flip */
+        .trans-flip { transform: rotateY(90deg); opacity: 0; transition: all 0.8s ease-in; perspective: 1000px; }
+        .trans-flip.active { opacity: 1; transform: rotateY(0deg); z-index: 1; transition-timing-function: ease-out;}
+
         .modal {
             display: none;
             position: fixed;
@@ -128,21 +157,28 @@
         }
         .modal.active { display: flex; }
 
-        /* Prevent OBS background */
         body.is-obs-mode {
             background-color: transparent !important;
+        }
+
+        .checkerboard-bg {
+            background-image: 
+                linear-gradient(45deg, #1e293b 25%, transparent 25%), 
+                linear-gradient(-45deg, #1e293b 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #1e293b 75%), 
+                linear-gradient(-45deg, transparent 75%, #1e293b 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
     </style>
 </head>
 <body>
 
-    <!-- This section is only visible when the URL contains ?widgetId=... -->
     <div id="obs-view">
         <div id="widget-renderer" class="w-full h-full"></div>
     </div>
 
     <div id="app-container" class="min-h-screen flex flex-col hidden">
-        <!-- Navigation -->
         <nav class="glass-panel p-4 sticky top-0 z-10">
             <div class="max-w-7xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-3">
@@ -158,10 +194,8 @@
             </div>
         </nav>
 
-        <!-- Main Content -->
         <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col md:flex-row gap-6">
             
-            <!-- Left Sidebar (Widget List) -->
             <div class="w-full md:w-1/3 flex flex-col gap-4">
                 <div class="glass-panel p-4 rounded-xl flex justify-between items-center">
                     <h2 class="text-lg font-semibold">Мои Виджеты</h2>
@@ -171,12 +205,11 @@
                 </div>
                 
                 <div id="widgets-list" class="flex flex-col gap-3 overflow-y-auto" style="max-height: calc(100vh - 200px);">
-                    <!-- Widgets will be injected here -->
                     <div class="text-center text-slate-500 py-8">Загрузка...</div>
                 </div>
             </div>
 
-            <!-- Right Panel (Widget Editor) -->
+            <!-- Editor Panel -->
             <div class="w-full md:w-2/3 glass-panel rounded-xl p-6 hidden flex-col" id="editor-panel">
                 <div class="flex justify-between items-start mb-6 border-b border-slate-700 pb-4">
                     <div>
@@ -193,32 +226,16 @@
                     </div>
                 </div>
 
-                <!-- Live Preview Area -->
                 <div class="mb-6">
                     <h3 class="text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider">Предпросмотр</h3>
-                    <div class="bg-slate-900 border border-slate-700 rounded-lg h-48 relative overflow-hidden flex items-center justify-center checkerboard-bg">
-                        <!-- Checkerboard CSS -->
-                        <style>
-                            .checkerboard-bg {
-                                background-image: 
-                                    linear-gradient(45deg, #1e293b 25%, transparent 25%), 
-                                    linear-gradient(-45deg, #1e293b 25%, transparent 25%), 
-                                    linear-gradient(45deg, transparent 75%, #1e293b 75%), 
-                                    linear-gradient(-45deg, transparent 75%, #1e293b 75%);
-                                background-size: 20px 20px;
-                                background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-                            }
-                        </style>
+                    <div class="bg-slate-900 border border-slate-700 rounded-lg h-64 relative overflow-hidden flex items-center justify-center checkerboard-bg">
                         <div id="preview-container" class="w-full h-full relative"></div>
                     </div>
                 </div>
 
-                <!-- Dynamic Settings Form -->
-                <div id="settings-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Settings injected via JS based on widget type -->
-                </div>
+                <!-- Dynamic Form injected here -->
+                <div id="settings-form" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
-                <!-- Delete Area -->
                 <div class="mt-auto pt-8 flex justify-end">
                     <button onclick="deleteCurrentWidget()" class="text-red-400 hover:text-red-300 text-sm transition">
                         <i class="fas fa-trash-alt mr-1"></i> Удалить виджет
@@ -226,7 +243,6 @@
                 </div>
             </div>
             
-            <!-- Empty State -->
             <div id="empty-state" class="w-full md:w-2/3 glass-panel rounded-xl p-8 flex flex-col items-center justify-center text-center">
                 <i class="fas fa-magic text-6xl text-slate-600 mb-4"></i>
                 <h3 class="text-xl font-bold text-white mb-2">Выберите или создайте виджет</h3>
@@ -236,8 +252,6 @@
         </main>
     </div>
 
-    
-    <!-- Auth Modal -->
     <div id="auth-modal" class="modal bg-slate-900">
         <div class="glass-panel p-8 rounded-2xl w-full max-w-md shadow-2xl">
             <div class="text-center mb-6">
@@ -267,7 +281,6 @@
         </div>
     </div>
 
-    <!-- Create Widget Modal -->
     <div id="create-modal" class="modal">
         <div class="glass-panel p-6 rounded-xl w-full max-w-sm">
             <h2 class="text-xl font-bold mb-4">Новый виджет</h2>
@@ -280,7 +293,8 @@
                     <label class="block text-sm text-slate-300 mb-1">Тип виджета</label>
                     <select id="new-widget-type">
                         <option value="marquee">Бегущая строка (Текст)</option>
-                        <option value="slideshow">Слайдшоу (Изображения)</option>
+                        <option value="image-marquee">Бегущая строка (Изображения)</option>
+                        <option value="slideshow">Слайдшоу</option>
                     </select>
                 </div>
                 <div class="flex gap-2 mt-6">
@@ -291,7 +305,6 @@
         </div>
     </div>
 
-    <!-- Message Box Modal (Custom Alert) -->
     <div id="msg-modal" class="modal z-[100]">
         <div class="glass-panel p-6 rounded-xl w-full max-w-sm text-center">
             <i id="msg-icon" class="fas fa-info-circle text-3xl mb-3 text-blue-500"></i>
@@ -302,63 +315,71 @@
     </div>
 
     <script>
-        // --- 1. CONFIGURATION & INIT ---
         var SUPABASE_URL = 'https://lqjagftaeejdufwwvjwd.supabase.co';
         var SUPABASE_KEY = 'sb_publishable_6-9IBhMX9CMVbIackZAJ9g_UUk5FDqx';
         var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // State
         var currentUser = null;
         var widgets = [];
         var currentWidget = null;
         var previewInterval = null;
+        var debounceTimer = null;
+        var loadedFonts = new Set();
 
-        // Default Configs
+        const GOOGLE_FONTS = [
+            "Inter", "Roboto", "Open Sans", "Montserrat", "Lato", "Poppins", "Oswald", 
+            "Source Sans Pro", "Raleway", "PT Sans", "Merriweather", "Nunito", "Concert One", 
+            "Bebas Neue", "Lobster", "Pacifico", "Caveat", "Amatic SC", "Permanent Marker", 
+            "Righteous", "Alfa Slab One", "Russo One", "Jost", "Playfair Display", "Cinzel", 
+            "Anton", "Bungee", "Dancing Script", "Exo 2", "Teko"
+        ];
+
         var DEFAULT_CONFIGS = {
             marquee: {
                 text: 'Добро пожаловать на стрим! Спасибо за просмотр.',
-                speed: 10,
+                speed: 15,
                 color: '#ffffff',
                 fontFamily: 'Inter',
-                fontSize: 48,
-                direction: 'left',
+                fontSize: 64,
                 effect: 'none',
-                fontWeight: '700'
+                outlineColor: '#000000',
+                outlineWidth: 2
+            },
+            'image-marquee': {
+                gap: 20,
+                imageHeight: 120,
+                rows: [
+                    { id: Date.now().toString(), speed: 15, direction: 'left', images: [] }
+                ]
             },
             slideshow: {
-                delay: 5, // seconds
+                delay: 5,
                 transition: 'fade',
-                images: [] // Array of URLs
+                objectFit: 'contain',
+                images: []
             }
         };
 
-        // --- 2. BOOTSTRAP & ROUTING ---
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const obsWidgetId = urlParams.get('widgetId');
 
             if (obsWidgetId) {
-                // OBS Mode
                 document.body.classList.add('is-obs-mode');
                 document.getElementById('obs-view').style.display = 'block';
                 document.getElementById('app-container').style.display = 'none';
                 loadWidgetForOBS(obsWidgetId);
             } else {
-                // Studio Mode
                 document.getElementById('obs-view').style.display = 'none';
                 document.getElementById('app-container').classList.remove('hidden');
                 checkAuth();
             }
         });
 
-        // --- 3. AUTHENTICATION ---
         async function checkAuth() {
             const { data: { session } } = await supabase.auth.getSession();
             handleAuthChange(session);
-
-            supabase.auth.onAuthStateChange((_event, session) => {
-                handleAuthChange(session);
-            });
+            supabase.auth.onAuthStateChange((_event, session) => handleAuthChange(session));
         }
 
         function handleAuthChange(session) {
@@ -378,35 +399,19 @@
         async function handleLogin() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
-            const errDiv = document.getElementById('auth-error');
-            
-            errDiv.classList.add('hidden');
             if(!email || !password) return showError("Введите email и пароль");
-
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) showError(error.message);
         }
 
         async function handleSignup() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
-            const errDiv = document.getElementById('auth-error');
-            
-            errDiv.classList.add('hidden');
             if(!email || !password) return showError("Введите email и пароль");
-
-            const { data, error } = await supabase.auth.signUp({ email, password });
-            if (error) {
-                showError(error.message);
-            } else {
-                showMessage("Успех", "Регистрация успешна. Проверьте почту для подтверждения или войдите.");
-            }
+            const { error } = await supabase.auth.signUp({ email, password });
+            if (error) showError(error.message);
+            else showMessage("Успех", "Регистрация успешна. Проверьте почту или войдите.");
         }
-
-        document.getElementById('btn-logout').addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            window.location.reload();
-        });
 
         function showError(msg) {
             const errDiv = document.getElementById('auth-error');
@@ -414,22 +419,11 @@
             errDiv.classList.remove('hidden');
         }
 
-        // --- 4. WIDGET MANAGEMENT (CRUD) ---
         async function loadWidgets() {
             const listEl = document.getElementById('widgets-list');
             listEl.innerHTML = '<div class="text-center text-slate-500 py-4">Загрузка...</div>';
-
-            const { data, error } = await supabase
-                .from('p_widgets')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                console.error(error);
-                listEl.innerHTML = '<div class="text-red-400 text-sm p-4">Ошибка загрузки виджетов</div>';
-                return;
-            }
-
+            const { data, error } = await supabase.from('p_widgets').select('*').order('created_at', { ascending: false });
+            if (error) return listEl.innerHTML = '<div class="text-red-400 text-sm p-4">Ошибка загрузки</div>';
             widgets = data || [];
             renderWidgetList();
         }
@@ -437,30 +431,22 @@
         function renderWidgetList() {
             const listEl = document.getElementById('widgets-list');
             listEl.innerHTML = '';
-
-            if (widgets.length === 0) {
-                listEl.innerHTML = '<div class="text-center text-slate-500 py-8 text-sm">Нет виджетов. Создайте первый!</div>';
-                return;
-            }
-
+            if (widgets.length === 0) return listEl.innerHTML = '<div class="text-center text-slate-500 py-8 text-sm">Нет виджетов</div>';
+            
             widgets.forEach(w => {
                 const div = document.createElement('div');
                 div.className = `p-3 rounded-lg border cursor-pointer transition flex items-center gap-3 ${
                     currentWidget?.id === w.id ? 'bg-blue-600/20 border-blue-500' : 'bg-slate-800 border-slate-700 hover:bg-slate-700'
                 }`;
                 div.onclick = () => selectWidget(w);
-
-                const icon = w.widget_type === 'marquee' ? 'fa-font' : 'fa-images';
-                const typeText = w.widget_type === 'marquee' ? 'Текст' : 'Слайдшоу';
+                
+                let icon = 'fa-font', typeText = 'Текст';
+                if(w.widget_type === 'slideshow') { icon = 'fa-images'; typeText = 'Слайдшоу'; }
+                if(w.widget_type === 'image-marquee') { icon = 'fa-film'; typeText = 'Строка картинок'; }
 
                 div.innerHTML = `
-                    <div class="bg-slate-900 w-10 h-10 rounded flex items-center justify-center text-blue-400">
-                        <i class="fas ${icon}"></i>
-                    </div>
-                    <div>
-                        <div class="font-semibold text-white">${w.name}</div>
-                        <div class="text-xs text-slate-400">${typeText}</div>
-                    </div>
+                    <div class="bg-slate-900 w-10 h-10 rounded flex items-center justify-center text-blue-400"><i class="fas ${icon}"></i></div>
+                    <div><div class="font-semibold text-white">${w.name}</div><div class="text-xs text-slate-400">${typeText}</div></div>
                 `;
                 listEl.appendChild(div);
             });
@@ -474,98 +460,54 @@
         async function createWidget() {
             const name = document.getElementById('new-widget-name').value.trim();
             const type = document.getElementById('new-widget-type').value;
-
             if (!name) return alertCustom("Ошибка", "Введите название виджета");
 
-            const newWidget = {
-                user_id: currentUser.id,
-                name: name,
-                widget_type: type,
-                config: DEFAULT_CONFIGS[type]
-            };
+            // Deep copy default to avoid reference sharing
+            const config = JSON.parse(JSON.stringify(DEFAULT_CONFIGS[type]));
+            if(type === 'image-marquee') config.rows[0].id = Date.now().toString();
 
-            const { data, error } = await supabase
-                .from('p_widgets')
-                .insert([newWidget])
-                .select();
-
-            if (error) {
-                console.error(error);
-                alertCustom("Ошибка", "Не удалось создать виджет");
-            } else {
-                closeModal('create-modal');
-                await loadWidgets();
-                if (data && data.length > 0) selectWidget(data[0]);
-            }
+            const { data, error } = await supabase.from('p_widgets').insert([{ user_id: currentUser.id, name, widget_type: type, config }]).select();
+            if (error) return alertCustom("Ошибка", "Не удалось создать");
+            
+            closeModal('create-modal');
+            await loadWidgets();
+            if (data && data.length > 0) selectWidget(data[0]);
         }
 
         function selectWidget(widget) {
             currentWidget = widget;
-            renderWidgetList(); // Update active state
-            
+            renderWidgetList();
             document.getElementById('empty-state').classList.add('hidden');
             document.getElementById('editor-panel').classList.remove('hidden');
             document.getElementById('editor-panel').classList.add('flex');
-            
             document.getElementById('editor-title').textContent = widget.name;
-            
             buildSettingsForm();
             updatePreview();
         }
 
         async function saveWidget() {
             if (!currentWidget) return;
+            syncFormToConfig(); // Ensures latest DOM values are in config
 
-            // Collect data from form
-            const newConfig = { ...currentWidget.config };
+            const { error } = await supabase.from('p_widgets').update({ 
+                config: currentWidget.config, 
+                updated_at: new Date().toISOString() 
+            }).eq('id', currentWidget.id);
+
+            if (error) return alertCustom("Ошибка", "Не удалось сохранить");
             
-            if (currentWidget.widget_type === 'marquee') {
-                newConfig.text = document.getElementById('setting-text').value;
-                newConfig.speed = parseInt(document.getElementById('setting-speed').value) || 10;
-                newConfig.color = document.getElementById('setting-color').value;
-                newConfig.fontSize = parseInt(document.getElementById('setting-size').value) || 48;
-                newConfig.effect = document.getElementById('setting-effect').value;
-            } else if (currentWidget.widget_type === 'slideshow') {
-                newConfig.delay = parseInt(document.getElementById('setting-delay').value) || 5;
-                newConfig.transition = document.getElementById('setting-transition').value;
-                // Images are updated directly in state via upload handler
-            }
-
-            const { error } = await supabase
-                .from('p_widgets')
-                .update({ config: newConfig, updated_at: new Date().toISOString() })
-                .eq('id', currentWidget.id);
-
-            if (error) {
-                console.error(error);
-                alertCustom("Ошибка", "Не удалось сохранить");
-            } else {
-                currentWidget.config = newConfig;
-                updatePreview();
-                
-                // Show brief success indicator on button
-                const btn = document.querySelector('button[onclick="saveWidget()"]');
-                const origHtml = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check"></i> Сохранено';
-                btn.classList.replace('bg-blue-600', 'bg-green-600');
-                setTimeout(() => {
-                    btn.innerHTML = origHtml;
-                    btn.classList.replace('bg-green-600', 'bg-blue-600');
-                }, 2000);
-            }
+            const btn = document.querySelector('button[onclick="saveWidget()"]');
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Сохранено';
+            btn.classList.replace('bg-blue-600', 'bg-green-600');
+            setTimeout(() => { btn.innerHTML = origHtml; btn.classList.replace('bg-green-600', 'bg-blue-600'); }, 2000);
         }
 
         async function deleteCurrentWidget() {
             if (!currentWidget) return;
-            
-            // Simple confirmation logic without browser native confirm
             const btn = document.querySelector('button[onclick="deleteCurrentWidget()"]');
             if (btn.textContent.includes('Вы уверены?')) {
-                const { error } = await supabase
-                    .from('p_widgets')
-                    .delete()
-                    .eq('id', currentWidget.id);
-
+                const { error } = await supabase.from('p_widgets').delete().eq('id', currentWidget.id);
                 if (!error) {
                     currentWidget = null;
                     document.getElementById('editor-panel').classList.add('hidden');
@@ -576,31 +518,36 @@
                 btn.innerHTML = '<i class="fas fa-trash-alt mr-1"></i> Удалить виджет';
             } else {
                 btn.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i> Вы уверены? Нажмите еще раз';
-                setTimeout(() => {
-                    if(currentWidget) btn.innerHTML = '<i class="fas fa-trash-alt mr-1"></i> Удалить виджет';
-                }, 3000);
+                setTimeout(() => { if(currentWidget) btn.innerHTML = '<i class="fas fa-trash-alt mr-1"></i> Удалить виджет'; }, 3000);
             }
         }
 
-        // --- 5. EDITOR UI GENERATION ---
         function buildSettingsForm() {
             const form = document.getElementById('settings-form');
             form.innerHTML = '';
             const c = currentWidget.config;
 
             if (currentWidget.widget_type === 'marquee') {
+                const fontsOptions = GOOGLE_FONTS.map(f => `<option value="${f}" ${c.fontFamily===f?'selected':''}>${f}</option>`).join('');
                 form.innerHTML = `
                     <div class="col-span-1 md:col-span-2">
                         <label class="block text-sm text-slate-300 mb-1">Текст</label>
                         <input type="text" id="setting-text" value="${escapeHtml(c.text || '')}" oninput="debouncePreview()">
                     </div>
                     <div>
-                        <label class="block text-sm text-slate-300 mb-1">Скорость (сек)</label>
-                        <input type="number" id="setting-speed" value="${c.speed || 10}" min="1" max="100" oninput="debouncePreview()">
+                        <label class="block text-sm text-slate-300 mb-1">Шрифт</label>
+                        <select id="setting-font" onchange="debouncePreview()">
+                            <option value="Inter" ${!c.fontFamily||c.fontFamily==='Inter'?'selected':''}>Inter (По умолчанию)</option>
+                            ${fontsOptions}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-1">Скорость (сек. на оборот)</label>
+                        <input type="number" id="setting-speed" value="${c.speed || 15}" min="1" max="100" oninput="debouncePreview()">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Размер шрифта (px)</label>
-                        <input type="number" id="setting-size" value="${c.fontSize || 48}" min="12" max="200" oninput="debouncePreview()">
+                        <input type="number" id="setting-size" value="${c.fontSize || 64}" min="12" max="300" oninput="debouncePreview()">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Цвет текста</label>
@@ -610,25 +557,51 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm text-slate-300 mb-1">Эффект</label>
+                        <label class="block text-sm text-slate-300 mb-1">Эффект текста</label>
                         <select id="setting-effect" onchange="debouncePreview()">
                             <option value="none" ${c.effect==='none'?'selected':''}>Нет</option>
-                            <option value="glow" ${c.effect==='glow'?'selected':''}>Свечение (Неон)</option>
+                            <option value="glow" ${c.effect==='glow'?'selected':''}>Свечение</option>
                             <option value="shadow" ${c.effect==='shadow'?'selected':''}>Тень</option>
-                            <option value="outline" ${c.effect==='outline'?'selected':''}>Обводка</option>
+                            <option value="outline" ${c.effect==='outline'?'selected':''}>Только обводка</option>
+                            <option value="glow-outline" ${c.effect==='glow-outline'?'selected':''}>Обводка + Свечение</option>
                         </select>
                     </div>
+                    <div class="flex gap-4 col-span-1 md:col-span-2 p-4 bg-slate-800 rounded border border-slate-700">
+                        <div class="flex-1">
+                            <label class="block text-sm text-slate-300 mb-1">Цвет обводки (для эффектов)</label>
+                            <input type="color" id="setting-outline-color" value="${c.outlineColor || '#000000'}" class="h-10 w-full p-1 cursor-pointer bg-slate-900 border-slate-700" oninput="debouncePreview()">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-sm text-slate-300 mb-1">Толщина обводки (px)</label>
+                            <input type="number" id="setting-outline-width" value="${c.outlineWidth || 2}" min="0" max="20" oninput="debouncePreview()">
+                        </div>
+                    </div>
                 `;
-            } else if (currentWidget.widget_type === 'slideshow') {
+            } 
+            else if (currentWidget.widget_type === 'slideshow') {
                 form.innerHTML = `
                     <div>
-                        <label class="block text-sm text-slate-300 mb-1">Задержка (сек)</label>
+                        <label class="block text-sm text-slate-300 mb-1">Задержка слайда (сек)</label>
                         <input type="number" id="setting-delay" value="${c.delay || 5}" min="1" max="60" oninput="debouncePreview()">
                     </div>
                     <div>
-                        <label class="block text-sm text-slate-300 mb-1">Переход</label>
+                        <label class="block text-sm text-slate-300 mb-1">Анимация перехода</label>
                         <select id="setting-transition" onchange="debouncePreview()">
                             <option value="fade" ${c.transition==='fade'?'selected':''}>Затухание (Fade)</option>
+                            <option value="slide-left" ${c.transition==='slide-left'?'selected':''}>Сдвиг Влево</option>
+                            <option value="slide-right" ${c.transition==='slide-right'?'selected':''}>Сдвиг Вправо</option>
+                            <option value="slide-up" ${c.transition==='slide-up'?'selected':''}>Сдвиг Вверх</option>
+                            <option value="slide-down" ${c.transition==='slide-down'?'selected':''}>Сдвиг Вниз</option>
+                            <option value="zoom-in" ${c.transition==='zoom-in'?'selected':''}>Увеличение</option>
+                            <option value="zoom-out" ${c.transition==='zoom-out'?'selected':''}>Уменьшение</option>
+                            <option value="flip" ${c.transition==='flip'?'selected':''}>Вращение 3D</option>
+                        </select>
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="block text-sm text-slate-300 mb-1">Масштабирование</label>
+                        <select id="setting-fit" onchange="debouncePreview()">
+                            <option value="contain" ${c.objectFit==='contain'?'selected':''}>Вмещать целиком (с полями)</option>
+                            <option value="cover" ${c.objectFit==='cover'?'selected':''}>Заполнять экран (с обрезкой)</option>
                         </select>
                     </div>
                     <div class="col-span-1 md:col-span-2 mt-4 border-t border-slate-700 pt-4">
@@ -636,110 +609,216 @@
                             <label class="block text-sm font-semibold text-white">Изображения</label>
                             <label class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded cursor-pointer text-sm transition">
                                 <i class="fas fa-upload mr-1"></i> Загрузить
-                                <input type="file" id="upload-image" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                                <input type="file" accept="image/*" class="hidden" onchange="handleImageUpload(event, null)">
                             </label>
                         </div>
-                        <div id="image-list" class="grid grid-cols-3 md:grid-cols-4 gap-2">
-                            <!-- Images rendered here -->
-                        </div>
+                        <div id="image-list-global" class="grid grid-cols-3 md:grid-cols-4 gap-2"></div>
                     </div>
                 `;
-                renderImageList();
+                renderImageList('image-list-global', c.images || [], null);
+            }
+            else if (currentWidget.widget_type === 'image-marquee') {
+                form.innerHTML = `
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-1">Высота картинок (px)</label>
+                        <input type="number" id="setting-img-height" value="${c.imageHeight || 120}" min="20" max="1000" oninput="debouncePreview()">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-1">Отступ между строками (px)</label>
+                        <input type="number" id="setting-gap" value="${c.gap || 20}" min="0" max="200" oninput="debouncePreview()">
+                    </div>
+                    <div class="col-span-1 md:col-span-2 mt-4 border-t border-slate-700 pt-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <label class="block text-base font-semibold text-white">Управление строками</label>
+                            <button onclick="addRow()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded text-sm transition shadow"><i class="fas fa-plus"></i> Строка</button>
+                        </div>
+                        <div id="rows-container" class="space-y-4"></div>
+                    </div>
+                `;
+                renderRowsEditor();
             }
         }
 
-        function renderImageList() {
-            const list = document.getElementById('image-list');
+        function renderRowsEditor() {
+            const container = document.getElementById('rows-container');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            const rows = currentWidget.config.rows || [];
+            rows.forEach((row, index) => {
+                const rowEl = document.createElement('div');
+                rowEl.className = 'bg-slate-800 border border-slate-600 rounded-lg p-4';
+                rowEl.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-slate-300"><i class="fas fa-bars text-slate-500 mr-2"></i>Строка ${index + 1}</h4>
+                        <button onclick="removeRow(${index})" class="text-red-400 hover:text-red-300 text-sm"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="flex gap-4 mb-4">
+                        <div class="flex-1">
+                            <label class="block text-xs text-slate-400 mb-1">Скорость (сек)</label>
+                            <input type="number" value="${row.speed}" min="1" max="200" class="row-speed text-sm" data-idx="${index}" oninput="updateRowConfig(this)">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs text-slate-400 mb-1">Направление</label>
+                            <select class="row-dir text-sm" data-idx="${index}" onchange="updateRowConfig(this)">
+                                <option value="left" ${row.direction==='left'?'selected':''}>Влево</option>
+                                <option value="right" ${row.direction==='right'?'selected':''}>Вправо</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-xs font-semibold text-slate-400">Изображения в строке</label>
+                            <label class="bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded cursor-pointer text-xs transition">
+                                <i class="fas fa-upload"></i> Загрузить
+                                <input type="file" accept="image/*" class="hidden" onchange="handleImageUpload(event, ${index})">
+                            </label>
+                        </div>
+                        <div id="row-imgs-${index}" class="flex gap-2 overflow-x-auto pb-2 custom-scroll"></div>
+                    </div>
+                `;
+                container.appendChild(rowEl);
+                renderImageList(`row-imgs-${index}`, row.images || [], index);
+            });
+        }
+
+        function addRow() {
+            currentWidget.config.rows.push({
+                id: Date.now().toString(), speed: 15, direction: 'left', images: []
+            });
+            renderRowsEditor();
+            updatePreview();
+            saveWidget();
+        }
+
+        function removeRow(idx) {
+            currentWidget.config.rows.splice(idx, 1);
+            renderRowsEditor();
+            updatePreview();
+            saveWidget();
+        }
+
+        function updateRowConfig(el) {
+            const idx = el.getAttribute('data-idx');
+            if(el.classList.contains('row-speed')) currentWidget.config.rows[idx].speed = parseInt(el.value) || 15;
+            if(el.classList.contains('row-dir')) currentWidget.config.rows[idx].direction = el.value;
+            debouncePreview();
+        }
+
+        function renderImageList(containerId, images, rowIndex) {
+            const list = document.getElementById(containerId);
             if(!list) return;
             list.innerHTML = '';
             
-            const images = currentWidget.config.images || [];
-            
             if(images.length === 0) {
-                list.innerHTML = '<div class="col-span-full text-slate-500 text-sm text-center py-4 border border-dashed border-slate-700 rounded">Нет изображений</div>';
+                list.innerHTML = '<div class="w-full text-slate-500 text-xs text-center py-4 border border-dashed border-slate-700 rounded">Пусто</div>';
                 return;
             }
 
-            images.forEach((url, index) => {
+            images.forEach((url, i) => {
                 const div = document.createElement('div');
-                div.className = 'relative aspect-video bg-slate-800 rounded group overflow-hidden border border-slate-700';
+                div.className = 'relative flex-shrink-0 w-20 h-20 bg-slate-900 rounded group overflow-hidden border border-slate-700';
                 div.innerHTML = `
                     <img src="${url}" class="w-full h-full object-cover">
-                    <button onclick="removeImage(${index})" class="absolute top-1 right-1 bg-red-500/80 hover:bg-red-500 text-white w-6 h-6 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                        <i class="fas fa-times text-xs"></i>
+                    <button onclick="removeImage(${i}, ${rowIndex})" class="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition rounded-bl">
+                        <i class="fas fa-times text-[10px]"></i>
                     </button>
                 `;
                 list.appendChild(div);
             });
         }
 
-        async function handleImageUpload(event) {
+        async function handleImageUpload(event, rowIndex) {
             const file = event.target.files[0];
             if (!file) return;
 
-            // Simple loading UI
             const label = event.target.parentElement;
             const originalHtml = label.innerHTML;
-            label.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+            label.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
             try {
-                // Upload to Supabase Storage in user's folder
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-                const filePath = `${currentUser.id}/${fileName}`; // Enforces RLS policy
+                const filePath = `${currentUser.id}/${fileName}`;
 
-                const { data, error } = await supabase.storage
-                    .from('p_widget_assets')
-                    .upload(filePath, file);
-
+                const { error } = await supabase.storage.from('p_widget_assets').upload(filePath, file);
                 if (error) throw error;
 
-                // Get public URL
-                const { data: publicData } = supabase.storage
-                    .from('p_widget_assets')
-                    .getPublicUrl(filePath);
+                const { data: publicData } = supabase.storage.from('p_widget_assets').getPublicUrl(filePath);
 
-                // Add to config (Note: requires save to persist in DB)
-                if (!currentWidget.config.images) currentWidget.config.images = [];
-                currentWidget.config.images.push(publicData.publicUrl);
+                if (rowIndex !== null) {
+                    if (!currentWidget.config.rows[rowIndex].images) currentWidget.config.rows[rowIndex].images = [];
+                    currentWidget.config.rows[rowIndex].images.push(publicData.publicUrl);
+                    renderImageList(`row-imgs-${rowIndex}`, currentWidget.config.rows[rowIndex].images, rowIndex);
+                } else {
+                    if (!currentWidget.config.images) currentWidget.config.images = [];
+                    currentWidget.config.images.push(publicData.publicUrl);
+                    renderImageList('image-list-global', currentWidget.config.images, null);
+                }
                 
-                renderImageList();
                 updatePreview();
-                saveWidget(); // Auto-save on image upload
-
+                saveWidget();
             } catch (err) {
                 console.error(err);
-                alertCustom("Ошибка", "Не удалось загрузить изображение");
+                alertCustom("Ошибка", "Сбой загрузки");
             } finally {
                 label.innerHTML = originalHtml;
-                event.target.value = ''; // Reset input
+                event.target.value = '';
             }
         }
 
-        function removeImage(index) {
-            currentWidget.config.images.splice(index, 1);
-            renderImageList();
+        function removeImage(imgIndex, rowIndex) {
+            if (rowIndex !== null) {
+                currentWidget.config.rows[rowIndex].images.splice(imgIndex, 1);
+                renderImageList(`row-imgs-${rowIndex}`, currentWidget.config.rows[rowIndex].images, rowIndex);
+            } else {
+                currentWidget.config.images.splice(imgIndex, 1);
+                renderImageList('image-list-global', currentWidget.config.images, null);
+            }
             updatePreview();
             saveWidget();
         }
 
-        // --- 6. PREVIEW & RENDER LOGIC ---
-        var debounceTimer;
+        function syncFormToConfig() {
+            if (!currentWidget) return;
+            const c = currentWidget.config;
+            if (currentWidget.widget_type === 'marquee') {
+                c.text = document.getElementById('setting-text').value;
+                c.fontFamily = document.getElementById('setting-font').value;
+                c.speed = parseInt(document.getElementById('setting-speed').value) || 15;
+                c.color = document.getElementById('setting-color').value;
+                c.fontSize = parseInt(document.getElementById('setting-size').value) || 64;
+                c.effect = document.getElementById('setting-effect').value;
+                c.outlineColor = document.getElementById('setting-outline-color').value;
+                c.outlineWidth = parseInt(document.getElementById('setting-outline-width').value) || 2;
+            } else if (currentWidget.widget_type === 'slideshow') {
+                c.delay = parseInt(document.getElementById('setting-delay').value) || 5;
+                c.transition = document.getElementById('setting-transition').value;
+                c.objectFit = document.getElementById('setting-fit').value;
+            } else if (currentWidget.widget_type === 'image-marquee') {
+                c.imageHeight = parseInt(document.getElementById('setting-img-height').value) || 120;
+                c.gap = parseInt(document.getElementById('setting-gap').value) || 20;
+            }
+        }
+
         function debouncePreview() {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
-                // Temporarily update config object from DOM without saving to DB
-                if (currentWidget.widget_type === 'marquee') {
-                    currentWidget.config.text = document.getElementById('setting-text').value;
-                    currentWidget.config.speed = parseInt(document.getElementById('setting-speed').value) || 10;
-                    currentWidget.config.color = document.getElementById('setting-color').value;
-                    currentWidget.config.fontSize = parseInt(document.getElementById('setting-size').value) || 48;
-                    currentWidget.config.effect = document.getElementById('setting-effect').value;
-                } else if (currentWidget.widget_type === 'slideshow') {
-                    currentWidget.config.delay = parseInt(document.getElementById('setting-delay').value) || 5;
-                }
+                syncFormToConfig();
                 updatePreview();
             }, 300);
+        }
+
+        function loadFont(fontName) {
+            if (!fontName || loadedFonts.has(fontName) || fontName === 'Inter') return;
+            const id = 'font-' + fontName.replace(/\s+/g, '-');
+            if (!document.getElementById(id)) {
+                const link = document.createElement('link');
+                link.id = id; link.rel = 'stylesheet';
+                link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/\s+/g, '+')}:wght@400;700;900&display=swap`;
+                document.head.appendChild(link);
+                loadedFonts.add(fontName);
+            }
         }
 
         function updatePreview() {
@@ -748,39 +827,77 @@
             renderWidget(currentWidget, container);
         }
 
-        // Central render function used by both Studio Preview and OBS View
         function renderWidget(widget, container) {
             container.innerHTML = '';
             if (previewInterval) clearInterval(previewInterval);
-
             const c = widget.config;
 
             if (widget.widget_type === 'marquee') {
-                const inner = document.createElement('div');
-                inner.className = 'marquee-container';
+                loadFont(c.fontFamily);
                 
-                const span = document.createElement('div');
-                span.className = 'marquee-content whitespace-nowrap font-bold';
-                span.textContent = c.text || 'Текст';
+                const wrapper = document.createElement('div');
+                wrapper.className = 'marquee-wrapper';
                 
-                // Apply Styles
-                span.style.color = c.color || '#fff';
-                span.style.fontSize = `${c.fontSize || 48}px`;
-                span.style.fontFamily = c.fontFamily || 'Inter';
+                const track = document.createElement('div');
+                track.className = 'marquee-track-container';
                 
-                // Duration calculation based on 'speed'. 
-                // Let's assume 'speed' is roughly seconds to cross the screen.
-                span.style.animation = `marquee-left ${c.speed || 10}s linear infinite`;
+                // Duplicate content for seamless loop
+                const buildContent = () => {
+                    const span = document.createElement('div');
+                    span.className = 'marquee-content font-bold';
+                    span.textContent = c.text || 'Текст';
+                    span.style.color = c.color || '#fff';
+                    span.style.fontSize = `${c.fontSize || 64}px`;
+                    span.style.fontFamily = `"${c.fontFamily || 'Inter'}", sans-serif`;
+                    span.style.animation = `marquee-left ${c.speed || 15}s linear infinite`;
+                    
+                    if(c.effect && c.effect !== 'none') span.classList.add(`effect-${c.effect}`);
+                    span.style.setProperty('--outline-color', c.outlineColor || '#000');
+                    span.style.setProperty('--outline-width', `${c.outlineWidth || 2}px`);
+                    return span;
+                };
 
-                // Effects
-                if(c.effect) {
-                    span.classList.add(`effect-${c.effect}`);
-                }
+                track.appendChild(buildContent());
+                track.appendChild(buildContent()); // Second copy for continuous flow
+                wrapper.appendChild(track);
+                container.appendChild(wrapper);
 
-                inner.appendChild(span);
-                container.appendChild(inner);
+            } 
+            else if (widget.widget_type === 'image-marquee') {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'marquee-wrapper';
+                wrapper.style.gap = `${c.gap || 20}px`;
 
-            } else if (widget.widget_type === 'slideshow') {
+                (c.rows || []).forEach(row => {
+                    if(!row.images || row.images.length === 0) return;
+                    
+                    const track = document.createElement('div');
+                    track.className = 'marquee-track-container';
+                    
+                    const buildImages = () => {
+                        const content = document.createElement('div');
+                        content.className = 'marquee-content flex gap-4 items-center';
+                        content.style.animation = `marquee-${row.direction || 'left'} ${row.speed || 15}s linear infinite`;
+                        
+                        row.images.forEach(url => {
+                            const img = document.createElement('img');
+                            img.src = url;
+                            img.style.height = `${c.imageHeight || 120}px`;
+                            img.className = "rounded shadow-lg object-contain";
+                            content.appendChild(img);
+                        });
+                        return content;
+                    };
+
+                    track.appendChild(buildImages());
+                    track.appendChild(buildImages());
+                    wrapper.appendChild(track);
+                });
+                
+                if(wrapper.children.length === 0) wrapper.innerHTML = '<div class="text-slate-500 m-auto">Добавьте изображения в строки</div>';
+                container.appendChild(wrapper);
+            }
+            else if (widget.widget_type === 'slideshow') {
                 const images = c.images || [];
                 if (images.length === 0) {
                     container.innerHTML = '<div class="flex items-center justify-center w-full h-full text-slate-500 font-bold">Нет изображений</div>';
@@ -793,8 +910,10 @@
                 const slideElements = [];
                 images.forEach((url, i) => {
                     const slide = document.createElement('div');
-                    slide.className = `slideshow-slide ${i === 0 ? 'active' : ''}`;
+                    const transClass = c.transition || 'fade';
+                    slide.className = `slideshow-slide trans-${transClass} ${i === 0 ? 'active' : ''}`;
                     slide.style.backgroundImage = `url('${url}')`;
+                    slide.style.backgroundSize = c.objectFit || 'contain';
                     wrap.appendChild(slide);
                     slideElements.push(slide);
                 });
@@ -804,7 +923,6 @@
                 if (images.length > 1) {
                     let currentIndex = 0;
                     const delayMs = (c.delay || 5) * 1000;
-                    
                     previewInterval = setInterval(() => {
                         slideElements[currentIndex].classList.remove('active');
                         currentIndex = (currentIndex + 1) % images.length;
@@ -814,96 +932,57 @@
             }
         }
 
-        // --- 7. OBS VIEW LOGIC ---
         async function loadWidgetForOBS(id) {
             const container = document.getElementById('widget-renderer');
             container.innerHTML = '<div style="color:white; text-align:center; padding:20px;">Загрузка виджета...</div>';
 
             try {
-                // Initial load
-                const { data, error } = await supabase
-                    .from('p_widgets')
-                    .select('*')
-                    .eq('id', id)
-                    .single();
-
+                const { data, error } = await supabase.from('p_widgets').select('*').eq('id', id).single();
                 if (error || !data) throw error;
                 
                 renderWidget(data, container);
 
-                // Setup Realtime Subscription to update OBS source instantly when saved in editor!
-                const channel = supabase.channel(`public:p_widgets:id=eq.${id}`)
-                    .on('postgres_changes', { 
-                        event: 'UPDATE', 
-                        schema: 'public', 
-                        table: 'p_widgets',
-                        filter: `id=eq.${id}`
-                    }, payload => {
-                        console.log('Widget updated in realtime!', payload);
+                supabase.channel(`public:p_widgets:id=eq.${id}`)
+                    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'p_widgets', filter: `id=eq.${id}` }, payload => {
                         renderWidget(payload.new, container);
-                    })
-                    .subscribe();
+                    }).subscribe();
 
             } catch (err) {
-                console.error(err);
-                container.innerHTML = '<div style="color:red; font-size:24px; text-shadow: 2px 2px 0 #000;">Ошибка: Виджет не найден или удален</div>';
+                container.innerHTML = '<div style="color:red; font-size:24px; text-shadow: 2px 2px 0 #000; padding:20px;">Ошибка: Виджет не найден</div>';
             }
         }
 
         function copyObsUrl() {
             if(!currentWidget) return;
-            
             const url = new URL(window.location.href);
             url.searchParams.set('widgetId', currentWidget.id);
-            const finalUrl = url.toString();
-
-            // Create temporary input to copy
+            
             const tempInput = document.createElement("input");
-            tempInput.value = finalUrl;
+            tempInput.value = url.toString();
             document.body.appendChild(tempInput);
             tempInput.select();
             document.execCommand("copy");
             document.body.removeChild(tempInput);
 
-            showMessage("Скопировано!", "Ссылка скопирована в буфер обмена. Вставьте её в OBS как источник 'Браузер' (Browser Source). Рекомендуемый размер: ширина 1920, высота 1080 (или по вкусу).");
+            showMessage("Скопировано!", "Ссылка скопирована в буфер обмена. Вставьте её в OBS как источник 'Браузер' (Browser Source).");
         }
 
-
-        // --- 8. UTILS ---
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        
         function showMessage(title, text) {
             document.getElementById('msg-title').textContent = title;
             document.getElementById('msg-text').textContent = text;
-            
             const icon = document.getElementById('msg-icon');
-            if (title.toLowerCase().includes('ошибка')) {
-                icon.className = 'fas fa-exclamation-triangle text-3xl mb-3 text-red-500';
-            } else if (title.toLowerCase().includes('скопировано') || title.toLowerCase().includes('успех')) {
-                icon.className = 'fas fa-check-circle text-3xl mb-3 text-green-500';
-            } else {
-                icon.className = 'fas fa-info-circle text-3xl mb-3 text-blue-500';
-            }
-
+            icon.className = title.includes('Ошибка') ? 'fas fa-exclamation-triangle text-3xl mb-3 text-red-500' :
+                             title.includes('Успех') || title.includes('Скопировано') ? 'fas fa-check-circle text-3xl mb-3 text-green-500' :
+                             'fas fa-info-circle text-3xl mb-3 text-blue-500';
             document.getElementById('msg-modal').classList.add('active');
         }
 
-        // Custom alert to replace default window.alert
-        function alertCustom(title, msg) {
-            showMessage(title, msg);
-        }
-
+        function alertCustom(title, msg) { showMessage(title, msg); }
         function escapeHtml(unsafe) {
-            return (unsafe||'').toString()
-                 .replace(/&/g, "&amp;")
-                 .replace(/</g, "&lt;")
-                 .replace(/>/g, "&gt;")
-                 .replace(/"/g, "&quot;")
-                 .replace(/'/g, "&#039;");
-         }
-
+            return (unsafe||'').toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
     </script>
 </body>
 </html>
