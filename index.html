@@ -303,18 +303,18 @@
 
     <script>
         // --- 1. CONFIGURATION & INIT ---
-        const SUPABASE_URL = 'https://lqjagftaeejdufwwvjwd.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_6-9IBhMX9CMVbIackZAJ9g_UUk5FDqx';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        var SUPABASE_URL = 'https://lqjagftaeejdufwwvjwd.supabase.co';
+        var SUPABASE_KEY = 'sb_publishable_6-9IBhMX9CMVbIackZAJ9g_UUk5FDqx';
+        var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // State
-        let currentUser = null;
-        let widgets = [];
-        let currentWidget = null;
-        let previewInterval = null;
+        var currentUser = null;
+        var widgets = [];
+        var currentWidget = null;
+        var previewInterval = null;
 
         // Default Configs
-        const DEFAULT_CONFIGS = {
+        var DEFAULT_CONFIGS = {
             marquee: {
                 text: 'Добро пожаловать на стрим! Спасибо за просмотр.',
                 speed: 10,
@@ -420,7 +420,7 @@
             listEl.innerHTML = '<div class="text-center text-slate-500 py-4">Загрузка...</div>';
 
             const { data, error } = await supabase
-                .from('p_widgets.widgets')
+                .from('p_widgets')
                 .select('*')
                 .order('created_at', { ascending: false });
 
@@ -485,7 +485,7 @@
             };
 
             const { data, error } = await supabase
-                .from('p_widgets.widgets')
+                .from('p_widgets')
                 .insert([newWidget])
                 .select();
 
@@ -532,7 +532,7 @@
             }
 
             const { error } = await supabase
-                .from('p_widgets.widgets')
+                .from('p_widgets')
                 .update({ config: newConfig, updated_at: new Date().toISOString() })
                 .eq('id', currentWidget.id);
 
@@ -562,7 +562,7 @@
             const btn = document.querySelector('button[onclick="deleteCurrentWidget()"]');
             if (btn.textContent.includes('Вы уверены?')) {
                 const { error } = await supabase
-                    .from('p_widgets.widgets')
+                    .from('p_widgets')
                     .delete()
                     .eq('id', currentWidget.id);
 
@@ -724,7 +724,7 @@
         }
 
         // --- 6. PREVIEW & RENDER LOGIC ---
-        let debounceTimer;
+        var debounceTimer;
         function debouncePreview() {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
@@ -822,7 +822,7 @@
             try {
                 // Initial load
                 const { data, error } = await supabase
-                    .from('p_widgets.widgets')
+                    .from('p_widgets')
                     .select('*')
                     .eq('id', id)
                     .single();
@@ -832,11 +832,11 @@
                 renderWidget(data, container);
 
                 // Setup Realtime Subscription to update OBS source instantly when saved in editor!
-                const channel = supabase.channel(`public:p_widgets.widgets:id=eq.${id}`)
+                const channel = supabase.channel(`public:p_widgets:id=eq.${id}`)
                     .on('postgres_changes', { 
                         event: 'UPDATE', 
-                        schema: 'p_widgets', 
-                        table: 'widgets',
+                        schema: 'public', 
+                        table: 'p_widgets',
                         filter: `id=eq.${id}`
                     }, payload => {
                         console.log('Widget updated in realtime!', payload);
