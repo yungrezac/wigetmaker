@@ -294,7 +294,8 @@
                     <select id="new-widget-type">
                         <option value="marquee">Бегущая строка (Текст)</option>
                         <option value="image-marquee">Бегущая строка (Изображения)</option>
-                        <option value="slideshow">Слайдшоу</option>
+                        <option value="slideshow">Слайдшоу (Одна зона)</option>
+                        <option value="multi-slideshow">Многострочное Слайдшоу</option>
                     </select>
                 </div>
                 <div class="flex gap-2 mt-6">
@@ -323,6 +324,7 @@
         var widgets = [];
         var currentWidget = null;
         var previewInterval = null;
+        var previewIntervals = []; // Для хранения интервалов мульти-слайдшоу
         var debounceTimer = null;
         var loadedFonts = new Set();
 
@@ -357,6 +359,16 @@
                 transition: 'fade',
                 objectFit: 'contain',
                 images: []
+            },
+            'multi-slideshow': {
+                delay: 5,
+                transition: 'fade',
+                objectFit: 'contain',
+                rowHeight: 200,
+                gap: 20,
+                rows: [
+                    { id: Date.now().toString(), images: [] }
+                ]
             }
         };
 
@@ -443,6 +455,7 @@
                 let icon = 'fa-font', typeText = 'Текст';
                 if(w.widget_type === 'slideshow') { icon = 'fa-images'; typeText = 'Слайдшоу'; }
                 if(w.widget_type === 'image-marquee') { icon = 'fa-film'; typeText = 'Строка картинок'; }
+                if(w.widget_type === 'multi-slideshow') { icon = 'fa-th-list'; typeText = 'Многострочное Слайдшоу'; }
 
                 div.innerHTML = `
                     <div class="bg-slate-900 w-10 h-10 rounded flex items-center justify-center text-blue-400"><i class="fas ${icon}"></i></div>
@@ -464,7 +477,7 @@
 
             // Deep copy default to avoid reference sharing
             const config = JSON.parse(JSON.stringify(DEFAULT_CONFIGS[type]));
-            if(type === 'image-marquee') config.rows[0].id = Date.now().toString();
+            if(type === 'image-marquee' || type === 'multi-slideshow') config.rows[0].id = Date.now().toString();
 
             const { data, error } = await supabase.from('p_widgets').insert([{ user_id: currentUser.id, name, widget_type: type, config }]).select();
             if (error) return alertCustom("Ошибка", "Не удалось создать");
@@ -637,6 +650,50 @@
                 `;
                 renderRowsEditor();
             }
+            else if (currentWidget.widget_type === 'multi-slideshow') {
+                form.innerHTML = `
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-1">Задержка слайда (сек)</label>
+                        <input type="number" id="setting-delay" value="${c.delay || 5}" min="1" max="60" oninput="debouncePreview()">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-1">Анимация перехода</label>
+                        <select id="setting-transition" onchange="debouncePreview()">
+                            <option value="fade" ${c.transition==='fade'?'selected':''}>Затухание (Fade)</option>
+                            <option value="slide-left" ${c.transition==='slide-left'?'selected':''}>Сдвиг Влево</option>
+                            <option value="slide-right" ${c.transition==='slide-right'?'selected':''}>Сдвиг Вправо</option>
+                            <option value="slide-up" ${c.transition==='slide-up'?'selected':''}>Сдвиг Вверх</option>
+                            <option value="slide-down" ${c.transition==='slide-down'?'selected':''}>Сдвиг Вниз</option>
+                            <option value="zoom-in" ${c.transition==='zoom-in'?'selected':''}>Увеличение</option>
+                            <option value="zoom-out" ${c.transition==='zoom-out'?'selected':''}>Уменьшение</option>
+                            <option value="flip" ${c.transition==='flip'?'selected':''}>Вращение 3D</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-1">Масштабирование</label>
+                        <select id="setting-fit" onchange="debouncePreview()">
+                            <option value="contain" ${c.objectFit==='contain'?'selected':''}>Вмещать целиком (с полями)</option>
+                            <option value="cover" ${c.objectFit==='cover'?'selected':''}>Заполнять экран (с обрезкой)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-300 mb-1">Высота строки (px)</label>
+                        <input type="number" id="setting-row-height" value="${c.rowHeight || 200}" min="50" max="1000" oninput="debouncePreview()">
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="block text-sm text-slate-300 mb-1">Отступ между строками (px)</label>
+                        <input type="number" id="setting-gap" value="${c.gap || 20}" min="0" max="200" oninput="debouncePreview()">
+                    </div>
+                    <div class="col-span-1 md:col-span-2 mt-4 border-t border-slate-700 pt-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <label class="block text-base font-semibold text-white">Управление строками</label>
+                            <button onclick="addRow()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded text-sm transition shadow"><i class="fas fa-plus"></i> Строка</button>
+                        </div>
+                        <div id="rows-container" class="space-y-4"></div>
+                    </div>
+                `;
+                renderRowsEditor();
+            }
         }
 
         function renderRowsEditor() {
@@ -645,14 +702,15 @@
             container.innerHTML = '';
             
             const rows = currentWidget.config.rows || [];
+            const isMarquee = currentWidget.widget_type === 'image-marquee';
+
             rows.forEach((row, index) => {
                 const rowEl = document.createElement('div');
                 rowEl.className = 'bg-slate-800 border border-slate-600 rounded-lg p-4';
-                rowEl.innerHTML = `
-                    <div class="flex justify-between items-center mb-3">
-                        <h4 class="font-bold text-slate-300"><i class="fas fa-bars text-slate-500 mr-2"></i>Строка ${index + 1}</h4>
-                        <button onclick="removeRow(${index})" class="text-red-400 hover:text-red-300 text-sm"><i class="fas fa-times"></i></button>
-                    </div>
+                
+                let controlsHtml = '';
+                if(isMarquee) {
+                    controlsHtml = `
                     <div class="flex gap-4 mb-4">
                         <div class="flex-1">
                             <label class="block text-xs text-slate-400 mb-1">Скорость (сек)</label>
@@ -665,7 +723,15 @@
                                 <option value="right" ${row.direction==='right'?'selected':''}>Вправо</option>
                             </select>
                         </div>
+                    </div>`;
+                }
+
+                rowEl.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-slate-300"><i class="fas fa-bars text-slate-500 mr-2"></i>Строка ${index + 1}</h4>
+                        <button onclick="removeRow(${index})" class="text-red-400 hover:text-red-300 text-sm"><i class="fas fa-times"></i></button>
                     </div>
+                    ${controlsHtml}
                     <div>
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-xs font-semibold text-slate-400">Изображения в строке</label>
@@ -798,6 +864,12 @@
             } else if (currentWidget.widget_type === 'image-marquee') {
                 c.imageHeight = parseInt(document.getElementById('setting-img-height').value) || 120;
                 c.gap = parseInt(document.getElementById('setting-gap').value) || 20;
+            } else if (currentWidget.widget_type === 'multi-slideshow') {
+                c.delay = parseInt(document.getElementById('setting-delay').value) || 5;
+                c.transition = document.getElementById('setting-transition').value;
+                c.objectFit = document.getElementById('setting-fit').value;
+                c.rowHeight = parseInt(document.getElementById('setting-row-height').value) || 200;
+                c.gap = parseInt(document.getElementById('setting-gap').value) || 20;
             }
         }
 
@@ -829,7 +901,9 @@
 
         function renderWidget(widget, container) {
             container.innerHTML = '';
-            if (previewInterval) clearInterval(previewInterval);
+            if (previewInterval) { clearInterval(previewInterval); previewInterval = null; }
+            if (previewIntervals) { previewIntervals.forEach(clearInterval); previewIntervals = []; }
+            
             const c = widget.config;
 
             if (widget.widget_type === 'marquee') {
@@ -929,6 +1003,53 @@
                         slideElements[currentIndex].classList.add('active');
                     }, delayMs);
                 }
+            }
+            else if (widget.widget_type === 'multi-slideshow') {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'w-full h-full flex flex-col justify-center';
+                wrapper.style.gap = `${c.gap || 20}px`;
+
+                (c.rows || []).forEach(row => {
+                    const rowContainer = document.createElement('div');
+                    rowContainer.style.height = `${c.rowHeight || 200}px`;
+                    rowContainer.style.width = '100%';
+                    rowContainer.style.position = 'relative';
+                    rowContainer.style.overflow = 'hidden';
+
+                    const images = row.images || [];
+                    if (images.length === 0) {
+                        rowContainer.innerHTML = '<div class="flex items-center justify-center w-full h-full text-slate-500 bg-slate-800/50 border border-dashed border-slate-700">Нет изображений</div>';
+                        wrapper.appendChild(rowContainer);
+                        return;
+                    }
+
+                    const slideElements = [];
+                    images.forEach((url, i) => {
+                        const slide = document.createElement('div');
+                        const transClass = c.transition || 'fade';
+                        slide.className = `slideshow-slide trans-${transClass} ${i === 0 ? 'active' : ''}`;
+                        slide.style.backgroundImage = `url('${url}')`;
+                        slide.style.backgroundSize = c.objectFit || 'contain';
+                        rowContainer.appendChild(slide);
+                        slideElements.push(slide);
+                    });
+
+                    wrapper.appendChild(rowContainer);
+
+                    if (images.length > 1) {
+                        let currentIndex = 0;
+                        const delayMs = (c.delay || 5) * 1000;
+                        const interval = setInterval(() => {
+                            slideElements[currentIndex].classList.remove('active');
+                            currentIndex = (currentIndex + 1) % images.length;
+                            slideElements[currentIndex].classList.add('active');
+                        }, delayMs);
+                        previewIntervals.push(interval);
+                    }
+                });
+                
+                if(wrapper.children.length === 0) wrapper.innerHTML = '<div class="text-slate-500 m-auto">Добавьте строки с изображениями</div>';
+                container.appendChild(wrapper);
             }
         }
 
