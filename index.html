@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IMWIGET</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Подключение сгенерированного файла Panda CSS -->
+    <link rel="stylesheet" href="./styled-system/styles.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <script type="module">
@@ -31,42 +32,12 @@
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        input[type="text"], input[type="number"], select, input[type="password"], input[type="email"] {
-            background-color: #334155;
-            border: 1px solid #475569;
-            color: white;
-            border-radius: 0.375rem;
-            padding: 0.5rem 0.75rem;
-            width: 100%;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        input[type="text"]:focus, input[type="number"]:focus, select:focus {
-            border-color: #3b82f6;
-        }
-
-        #obs-view {
-            width: 100vw;
-            height: 100vh;
-            background: transparent;
-            overflow: hidden;
-            display: none;
-            position: absolute;
-            top: 0; left: 0;
-        }
-
         .marquee-wrapper {
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Center rows vertically */
+            justify-content: center;
         }
 
         .marquee-track-container {
@@ -78,12 +49,11 @@
             align-items: center;
         }
         
-        /* Using two content blocks for seamless looping */
         .marquee-content {
             display: inline-flex;
             align-items: center;
             will-change: transform;
-            padding-right: 50px; /* Gap between repeats */
+            padding-right: 50px;
         }
 
         @keyframes marquee-left {
@@ -120,42 +90,26 @@
         }
 
         /* Transition Classes */
-        /* Fade */
         .trans-fade { transition: opacity 1s ease-in-out; }
         .trans-fade.active { opacity: 1; z-index: 1; }
         
-        /* Slide Left/Right */
         .trans-slide-left { transform: translateX(100%); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .trans-slide-left.active { opacity: 1; transform: translateX(0); z-index: 1; }
         .trans-slide-right { transform: translateX(-100%); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .trans-slide-right.active { opacity: 1; transform: translateX(0); z-index: 1; }
         
-        /* Slide Up/Down */
         .trans-slide-up { transform: translateY(100%); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .trans-slide-up.active { opacity: 1; transform: translateY(0); z-index: 1; }
         .trans-slide-down { transform: translateY(-100%); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .trans-slide-down.active { opacity: 1; transform: translateY(0); z-index: 1; }
 
-        /* Zoom */
         .trans-zoom-in { transform: scale(0.5); opacity: 0; transition: all 1.2s ease; }
         .trans-zoom-in.active { opacity: 1; transform: scale(1); z-index: 1; }
         .trans-zoom-out { transform: scale(1.5); opacity: 0; transition: all 1.2s ease; }
         .trans-zoom-out.active { opacity: 1; transform: scale(1); z-index: 1; }
 
-        /* Flip */
         .trans-flip { transform: rotateY(90deg); opacity: 0; transition: all 0.8s ease-in; perspective: 1000px; }
         .trans-flip.active { opacity: 1; transform: rotateY(0deg); z-index: 1; transition-timing-function: ease-out;}
-
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 50;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal.active { display: flex; }
 
         body.is-obs-mode {
             background-color: transparent !important;
@@ -174,12 +128,12 @@
 </head>
 <body>
 
-    <div id="obs-view">
+    <div id="obs-view" class="w-screen h-screen bg-transparent overflow-hidden hidden absolute top-0 left-0">
         <div id="widget-renderer" class="w-full h-full"></div>
     </div>
 
     <div id="app-container" class="min-h-screen flex flex-col hidden">
-        <nav class="glass-panel p-4 sticky top-0 z-10">
+        <nav class="bg-slate-800/70 backdrop-blur-[10px] border-b border-white/10 p-4 sticky top-0 z-10">
             <div class="max-w-7xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <i class="fas fa-layer-group text-blue-500 text-2xl"></i>
@@ -197,20 +151,20 @@
         <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col md:flex-row gap-6">
             
             <div class="w-full md:w-1/3 flex flex-col gap-4">
-                <div class="glass-panel p-4 rounded-xl flex justify-between items-center">
+                <div class="bg-slate-800/70 backdrop-blur-[10px] border border-white/10 p-4 rounded-xl flex justify-between items-center">
                     <h2 class="text-lg font-semibold">Виджеты</h2>
                     <button onclick="showCreateModal()" class="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg transition shadow-lg shadow-blue-500/30">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
                 
-                <div id="widgets-list" class="flex flex-col gap-3 overflow-y-auto" style="max-height: calc(100vh - 200px);">
+                <div id="widgets-list" class="flex flex-col gap-3 overflow-y-auto max-h-[calc(100vh-200px)]">
                     <div class="text-center text-slate-500 py-8">Загрузка...</div>
                 </div>
             </div>
 
             <!-- Editor Panel -->
-            <div class="w-full md:w-2/3 glass-panel rounded-xl p-6 hidden flex-col" id="editor-panel">
+            <div class="w-full md:w-2/3 bg-slate-800/70 backdrop-blur-[10px] border border-white/10 rounded-xl p-6 hidden flex-col" id="editor-panel">
                 <div class="flex justify-between items-start mb-6 border-b border-slate-700 pb-4">
                     <div>
                         <h2 id="editor-title" class="text-2xl font-bold text-white">Редактор</h2>
@@ -243,7 +197,7 @@
                 </div>
             </div>
             
-            <div id="empty-state" class="w-full md:w-2/3 glass-panel rounded-xl p-8 flex flex-col items-center justify-center text-center">
+            <div id="empty-state" class="w-full md:w-2/3 bg-slate-800/70 backdrop-blur-[10px] border border-white/10 rounded-xl p-8 flex flex-col items-center justify-center text-center">
                 <i class="fas fa-magic text-6xl text-slate-600 mb-4"></i>
                 <h3 class="text-xl font-bold text-white mb-2">Выбери или создай виджет</h3>
                 <p class="text-slate-400 max-w-md">Я пукаю по утрам, но кому это интересно</p>
@@ -252,8 +206,9 @@
         </main>
     </div>
 
-    <div id="auth-modal" class="modal bg-slate-900">
-        <div class="glass-panel p-8 rounded-2xl w-full max-w-md shadow-2xl">
+    <!-- Modals (Using Panda state modifier [&.active]:flex) -->
+    <div id="auth-modal" class="fixed inset-0 bg-black/80 z-50 hidden [&.active]:flex items-center justify-center">
+        <div class="bg-slate-800/90 backdrop-blur-[10px] border border-white/10 p-8 rounded-2xl w-full max-w-md shadow-2xl">
             <div class="text-center mb-6">
                 <i class="fas fa-video text-blue-500 text-4xl mb-3"></i>
                 <h2 class="text-2xl font-bold">Вход</h2>
@@ -263,11 +218,11 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm text-slate-300 mb-1">Email</label>
-                    <input type="email" id="auth-email" placeholder="your@email.com">
+                    <input type="email" id="auth-email" placeholder="your@email.com" class="bg-slate-700 border border-slate-600 text-white rounded-md px-3 py-2 w-full outline-none focus:border-blue-500 transition-colors">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-300 mb-1">Пароль</label>
-                    <input type="password" id="auth-password" placeholder="••••••••">
+                    <input type="password" id="auth-password" placeholder="••••••••" class="bg-slate-700 border border-slate-600 text-white rounded-md px-3 py-2 w-full outline-none focus:border-blue-500 transition-colors">
                 </div>
                 <div id="auth-error" class="text-red-400 text-sm hidden text-center"></div>
                 
@@ -281,17 +236,17 @@
         </div>
     </div>
 
-    <div id="create-modal" class="modal">
-        <div class="glass-panel p-6 rounded-xl w-full max-w-sm">
+    <div id="create-modal" class="fixed inset-0 bg-black/80 z-50 hidden [&.active]:flex items-center justify-center">
+        <div class="bg-slate-800/90 backdrop-blur-[10px] border border-white/10 p-6 rounded-xl w-full max-w-sm">
             <h2 class="text-xl font-bold mb-4">Новый виджет</h2>
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm text-slate-300 mb-1">Название</label>
-                    <input type="text" id="new-widget-name" placeholder="Например: Донаты" maxlength="30">
+                    <input type="text" id="new-widget-name" placeholder="Например: Донаты" maxlength="30" class="bg-slate-700 border border-slate-600 text-white rounded-md px-3 py-2 w-full outline-none focus:border-blue-500 transition-colors">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-300 mb-1">Тип виджета</label>
-                    <select id="new-widget-type">
+                    <select id="new-widget-type" class="bg-slate-700 border border-slate-600 text-white rounded-md px-3 py-2 w-full outline-none focus:border-blue-500 transition-colors">
                         <option value="marquee">Бегущая строка (Текст)</option>
                         <option value="image-marquee">Бегущая строка (Изображения)</option>
                         <option value="slideshow">Слайдшоу (Одна зона)</option>
@@ -306,8 +261,8 @@
         </div>
     </div>
 
-    <div id="msg-modal" class="modal z-[100]">
-        <div class="glass-panel p-6 rounded-xl w-full max-w-sm text-center">
+    <div id="msg-modal" class="fixed inset-0 bg-black/80 z-[100] hidden [&.active]:flex items-center justify-center">
+        <div class="bg-slate-800/90 backdrop-blur-[10px] border border-white/10 p-6 rounded-xl w-full max-w-sm text-center">
             <i id="msg-icon" class="fas fa-info-circle text-3xl mb-3 text-blue-500"></i>
             <h3 id="msg-title" class="text-lg font-bold mb-2">Message</h3>
             <p id="msg-text" class="text-slate-300 mb-6 text-sm"></p>
@@ -324,9 +279,12 @@
         var widgets = [];
         var currentWidget = null;
         var previewInterval = null;
-        var previewIntervals = []; // Для хранения интервалов мульти-слайдшоу
+        var previewIntervals = []; 
         var debounceTimer = null;
         var loadedFonts = new Set();
+        
+        // Base input classes string for easy insertion in dynamic templates
+        const baseInputClasses = "bg-slate-700 border border-slate-600 text-white rounded-md px-3 py-2 w-full outline-none focus:border-blue-500 transition-colors";
 
         const GOOGLE_FONTS = [
             "Inter", "Roboto", "Open Sans", "Montserrat", "Lato", "Poppins", "Oswald", 
@@ -475,7 +433,6 @@
             const type = document.getElementById('new-widget-type').value;
             if (!name) return alertCustom("Ошибка", "Введите название виджета");
 
-            // Deep copy default to avoid reference sharing
             const config = JSON.parse(JSON.stringify(DEFAULT_CONFIGS[type]));
             if(type === 'image-marquee' || type === 'multi-slideshow') config.rows[0].id = Date.now().toString();
 
@@ -500,7 +457,7 @@
 
         async function saveWidget() {
             if (!currentWidget) return;
-            syncFormToConfig(); // Ensures latest DOM values are in config
+            syncFormToConfig();
 
             const { error } = await supabase.from('p_widgets').update({ 
                 config: currentWidget.config, 
@@ -545,33 +502,33 @@
                 form.innerHTML = `
                     <div class="col-span-1 md:col-span-2">
                         <label class="block text-sm text-slate-300 mb-1">Текст</label>
-                        <input type="text" id="setting-text" value="${escapeHtml(c.text || '')}" oninput="debouncePreview()">
+                        <input type="text" id="setting-text" value="${escapeHtml(c.text || '')}" oninput="debouncePreview()" class="${baseInputClasses}">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Шрифт</label>
-                        <select id="setting-font" onchange="debouncePreview()">
+                        <select id="setting-font" onchange="debouncePreview()" class="${baseInputClasses}">
                             <option value="Inter" ${!c.fontFamily||c.fontFamily==='Inter'?'selected':''}>Inter (По умолчанию)</option>
                             ${fontsOptions}
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Скорость (сек. на оборот)</label>
-                        <input type="number" id="setting-speed" value="${c.speed || 15}" min="1" max="100" oninput="debouncePreview()">
+                        <input type="number" id="setting-speed" value="${c.speed || 15}" min="1" max="100" oninput="debouncePreview()" class="${baseInputClasses}">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Размер шрифта (px)</label>
-                        <input type="number" id="setting-size" value="${c.fontSize || 64}" min="12" max="300" oninput="debouncePreview()">
+                        <input type="number" id="setting-size" value="${c.fontSize || 64}" min="12" max="300" oninput="debouncePreview()" class="${baseInputClasses}">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Цвет текста</label>
                         <div class="flex gap-2">
-                            <input type="color" id="setting-color" value="${c.color || '#ffffff'}" class="h-10 w-16 p-1 cursor-pointer bg-slate-800 border-slate-700" oninput="debouncePreview()">
-                            <input type="text" value="${c.color || '#ffffff'}" class="flex-1" readonly>
+                            <input type="color" id="setting-color" value="${c.color || '#ffffff'}" class="h-10 w-16 p-1 cursor-pointer bg-slate-700 border border-slate-600 rounded-md transition-colors" oninput="debouncePreview()">
+                            <input type="text" value="${c.color || '#ffffff'}" class="flex-1 ${baseInputClasses}" readonly>
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Эффект текста</label>
-                        <select id="setting-effect" onchange="debouncePreview()">
+                        <select id="setting-effect" onchange="debouncePreview()" class="${baseInputClasses}">
                             <option value="none" ${c.effect==='none'?'selected':''}>Нет</option>
                             <option value="glow" ${c.effect==='glow'?'selected':''}>Свечение</option>
                             <option value="shadow" ${c.effect==='shadow'?'selected':''}>Тень</option>
@@ -579,14 +536,14 @@
                             <option value="glow-outline" ${c.effect==='glow-outline'?'selected':''}>Обводка + Свечение</option>
                         </select>
                     </div>
-                    <div class="flex gap-4 col-span-1 md:col-span-2 p-4 bg-slate-800 rounded border border-slate-700">
+                    <div class="flex gap-4 col-span-1 md:col-span-2 p-4 bg-slate-800 rounded-lg border border-slate-700">
                         <div class="flex-1">
                             <label class="block text-sm text-slate-300 mb-1">Цвет обводки (для эффектов)</label>
-                            <input type="color" id="setting-outline-color" value="${c.outlineColor || '#000000'}" class="h-10 w-full p-1 cursor-pointer bg-slate-900 border-slate-700" oninput="debouncePreview()">
+                            <input type="color" id="setting-outline-color" value="${c.outlineColor || '#000000'}" class="h-10 w-full p-1 cursor-pointer bg-slate-900 border border-slate-700 rounded-md transition-colors" oninput="debouncePreview()">
                         </div>
                         <div class="flex-1">
                             <label class="block text-sm text-slate-300 mb-1">Толщина обводки (px)</label>
-                            <input type="number" id="setting-outline-width" value="${c.outlineWidth || 2}" min="0" max="20" oninput="debouncePreview()">
+                            <input type="number" id="setting-outline-width" value="${c.outlineWidth || 2}" min="0" max="20" oninput="debouncePreview()" class="${baseInputClasses}">
                         </div>
                     </div>
                 `;
@@ -595,11 +552,11 @@
                 form.innerHTML = `
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Задержка слайда (сек)</label>
-                        <input type="number" id="setting-delay" value="${c.delay || 5}" min="1" max="60" oninput="debouncePreview()">
+                        <input type="number" id="setting-delay" value="${c.delay || 5}" min="1" max="60" oninput="debouncePreview()" class="${baseInputClasses}">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Анимация перехода</label>
-                        <select id="setting-transition" onchange="debouncePreview()">
+                        <select id="setting-transition" onchange="debouncePreview()" class="${baseInputClasses}">
                             <option value="fade" ${c.transition==='fade'?'selected':''}>Затухание (Fade)</option>
                             <option value="slide-left" ${c.transition==='slide-left'?'selected':''}>Сдвиг Влево</option>
                             <option value="slide-right" ${c.transition==='slide-right'?'selected':''}>Сдвиг Вправо</option>
@@ -612,7 +569,7 @@
                     </div>
                     <div class="col-span-1 md:col-span-2">
                         <label class="block text-sm text-slate-300 mb-1">Масштабирование</label>
-                        <select id="setting-fit" onchange="debouncePreview()">
+                        <select id="setting-fit" onchange="debouncePreview()" class="${baseInputClasses}">
                             <option value="contain" ${c.objectFit==='contain'?'selected':''}>Вмещать целиком (с полями)</option>
                             <option value="cover" ${c.objectFit==='cover'?'selected':''}>Заполнять экран (с обрезкой)</option>
                         </select>
@@ -634,11 +591,11 @@
                 form.innerHTML = `
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Высота картинок (px)</label>
-                        <input type="number" id="setting-img-height" value="${c.imageHeight || 120}" min="20" max="1000" oninput="debouncePreview()">
+                        <input type="number" id="setting-img-height" value="${c.imageHeight || 120}" min="20" max="1000" oninput="debouncePreview()" class="${baseInputClasses}">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Отступ между строками (px)</label>
-                        <input type="number" id="setting-gap" value="${c.gap || 20}" min="0" max="200" oninput="debouncePreview()">
+                        <input type="number" id="setting-gap" value="${c.gap || 20}" min="0" max="200" oninput="debouncePreview()" class="${baseInputClasses}">
                     </div>
                     <div class="col-span-1 md:col-span-2 mt-4 border-t border-slate-700 pt-4">
                         <div class="flex justify-between items-center mb-4">
@@ -654,11 +611,11 @@
                 form.innerHTML = `
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Задержка слайда (сек)</label>
-                        <input type="number" id="setting-delay" value="${c.delay || 5}" min="1" max="60" oninput="debouncePreview()">
+                        <input type="number" id="setting-delay" value="${c.delay || 5}" min="1" max="60" oninput="debouncePreview()" class="${baseInputClasses}">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Анимация перехода</label>
-                        <select id="setting-transition" onchange="debouncePreview()">
+                        <select id="setting-transition" onchange="debouncePreview()" class="${baseInputClasses}">
                             <option value="fade" ${c.transition==='fade'?'selected':''}>Затухание (Fade)</option>
                             <option value="slide-left" ${c.transition==='slide-left'?'selected':''}>Сдвиг Влево</option>
                             <option value="slide-right" ${c.transition==='slide-right'?'selected':''}>Сдвиг Вправо</option>
@@ -671,18 +628,18 @@
                     </div>
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Масштабирование</label>
-                        <select id="setting-fit" onchange="debouncePreview()">
+                        <select id="setting-fit" onchange="debouncePreview()" class="${baseInputClasses}">
                             <option value="contain" ${c.objectFit==='contain'?'selected':''}>Вмещать целиком (с полями)</option>
                             <option value="cover" ${c.objectFit==='cover'?'selected':''}>Заполнять экран (с обрезкой)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm text-slate-300 mb-1">Высота строки (px)</label>
-                        <input type="number" id="setting-row-height" value="${c.rowHeight || 200}" min="50" max="1000" oninput="debouncePreview()">
+                        <input type="number" id="setting-row-height" value="${c.rowHeight || 200}" min="50" max="1000" oninput="debouncePreview()" class="${baseInputClasses}">
                     </div>
                     <div class="col-span-1 md:col-span-2">
                         <label class="block text-sm text-slate-300 mb-1">Отступ между строками (px)</label>
-                        <input type="number" id="setting-gap" value="${c.gap || 20}" min="0" max="200" oninput="debouncePreview()">
+                        <input type="number" id="setting-gap" value="${c.gap || 20}" min="0" max="200" oninput="debouncePreview()" class="${baseInputClasses}">
                     </div>
                     <div class="col-span-1 md:col-span-2 mt-4 border-t border-slate-700 pt-4">
                         <div class="flex justify-between items-center mb-4">
@@ -714,11 +671,11 @@
                     <div class="flex gap-4 mb-4">
                         <div class="flex-1">
                             <label class="block text-xs text-slate-400 mb-1">Скорость (сек)</label>
-                            <input type="number" value="${row.speed}" min="1" max="200" class="row-speed text-sm" data-idx="${index}" oninput="updateRowConfig(this)">
+                            <input type="number" value="${row.speed}" min="1" max="200" class="row-speed bg-slate-700 border border-slate-600 text-white rounded-md px-2 py-1 w-full text-sm outline-none focus:border-blue-500 transition-colors" data-idx="${index}" oninput="updateRowConfig(this)">
                         </div>
                         <div class="flex-1">
                             <label class="block text-xs text-slate-400 mb-1">Направление</label>
-                            <select class="row-dir text-sm" data-idx="${index}" onchange="updateRowConfig(this)">
+                            <select class="row-dir bg-slate-700 border border-slate-600 text-white rounded-md px-2 py-1 w-full text-sm outline-none focus:border-blue-500 transition-colors" data-idx="${index}" onchange="updateRowConfig(this)">
                                 <option value="left" ${row.direction==='left'?'selected':''}>Влево</option>
                                 <option value="right" ${row.direction==='right'?'selected':''}>Вправо</option>
                             </select>
@@ -915,7 +872,6 @@
                 const track = document.createElement('div');
                 track.className = 'marquee-track-container';
                 
-                // Duplicate content for seamless loop
                 const buildContent = () => {
                     const span = document.createElement('div');
                     span.className = 'marquee-content font-bold';
@@ -932,7 +888,7 @@
                 };
 
                 track.appendChild(buildContent());
-                track.appendChild(buildContent()); // Second copy for continuous flow
+                track.appendChild(buildContent()); 
                 wrapper.appendChild(track);
                 container.appendChild(wrapper);
 
