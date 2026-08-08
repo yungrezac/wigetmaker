@@ -157,7 +157,7 @@
         <img id="mascot-img" src="Gemini_Generated_Image_hdls1shdls1shdls-Photoroom.png" alt="Mascot" style="width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'"/>
         
         <!-- Видео -->
-        <video id="mascot-video" src="video_2026-08-08_05-21-29.mp4" loop playsinline style="display: none; width: 130px; height: 130px; border-radius: 50%; object-fit: cover; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 3px solid rgba(255,255,255,0.1);"></video>
+        <video id="mascot-video" src="video_2026-08-08_05-21-29.mp4" playsinline style="display: none; width: 130px; height: 130px; border-radius: 50%; object-fit: cover; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 3px solid rgba(255,255,255,0.1);"></video>
     </div>
 
     <div id="obs-view" class="w-screen h-screen bg-transparent overflow-hidden hidden absolute top-0 left-0">
@@ -1243,28 +1243,29 @@
         const mascotSpeech = document.getElementById('mascot-speech');
 
         // Стартовые координаты и скорость (медленная)
-        let mX = Math.random() * (window.innerWidth - 140);
-        let mY = Math.random() * (window.innerHeight - 140);
+        const mascotSize = 140; // Размер контейнера
+        let mX = Math.random() * (Math.max(0, document.documentElement.clientWidth - mascotSize));
+        let mY = Math.random() * (Math.max(0, document.documentElement.clientHeight - mascotSize));
         let mDx = 1.2; // Скорость по X
         let mDy = 1.2; // Скорость по Y
-        const mascotSize = 140; // Размер контейнера
         
         let isVideoMode = false;
         let animationId;
 
         // Анимация перемещения и отскока
         function animateMascot() {
-            const maxX = window.innerWidth - mascotSize;
-            const maxY = window.innerHeight - mascotSize;
+            // Используем clientWidth/clientHeight для точного определения видимой области (без учета скроллбаров)
+            const maxX = Math.max(0, document.documentElement.clientWidth - mascotSize);
+            const maxY = Math.max(0, document.documentElement.clientHeight - mascotSize);
 
             mX += mDx;
             mY += mDy;
 
-            // Отбивание от стенок
-            if (mX <= 0) { mX = 0; mDx *= -1; }
-            if (mX >= maxX) { mX = maxX; mDx *= -1; }
-            if (mY <= 0) { mY = 0; mDy *= -1; }
-            if (mY >= maxY) { mY = maxY; mDy *= -1; }
+            // Отбивание от стенок с жестким возвратом в границы (спасает от застреваний при сужении окна)
+            if (mX <= 0) { mX = 0; mDx = Math.abs(mDx); }
+            if (mX >= maxX) { mX = maxX; mDx = -Math.abs(mDx); }
+            if (mY <= 0) { mY = 0; mDy = Math.abs(mDy); }
+            if (mY >= maxY) { mY = maxY; mDy = -Math.abs(mDy); }
 
             // Применяем трансформ
             mascotContainer.style.transform = `translate(${mX}px, ${mY}px)`;
@@ -1305,6 +1306,7 @@
                 
                 // Показываем и запускаем видео
                 mascotVideo.style.display = 'block';
+                mascotVideo.currentTime = 0; // Всегда начинаем с начала
                 mascotVideo.play().catch(e => console.log("Браузер заблокировал автовоспроизведение видео:", e));
             }
         });
@@ -1312,6 +1314,17 @@
         // Запуск логики маскота
         animateMascot();
         setTimeout(showRandomSpeech, 3000); // Первый чек через 3 секунды
+
+        // Обработка окончания видео
+        mascotVideo.addEventListener('ended', () => {
+            isVideoMode = false;
+            
+            // Скрываем видео
+            mascotVideo.style.display = 'none';
+            
+            // Возвращаем фото (текст вернется сам по таймеру)
+            mascotImg.style.display = 'block';
+        });
 
     </script>
 </body>
