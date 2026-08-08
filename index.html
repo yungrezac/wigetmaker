@@ -26,7 +26,6 @@
             overflow-x: hidden;
         }
 
-        /* Styling scrollbars for modern look */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -77,7 +76,7 @@
             background-position: center;
             opacity: 0;
             z-index: 0;
-            padding: 10px; /* Защита от обрезки теней на краях */
+            padding: 10px;
         }
 
         .trans-fade { transition: opacity 1s ease-in-out; }
@@ -141,6 +140,8 @@
 
         #mascot-container {
             position: fixed;
+            top: 0px;
+            left: 0px;
             z-index: 9999;
             pointer-events: auto;
             cursor: pointer;
@@ -166,8 +167,8 @@
             border-radius: 50%;
             box-shadow: 0 0 30px rgba(59,130,246,0.5);
             display: none;
-            pointer-events: none; /* Запрещаем всплывающие кнопки видео в браузерах */
-            flex-shrink: 0; /* ОЧЕНЬ ВАЖНО: предотвращает сплющивание видео во flex-контейнере */
+            pointer-events: none;
+            flex-shrink: 0;
         }
         
         .speech-bubble {
@@ -211,7 +212,6 @@
 
     <div id="app-container" class="min-h-screen flex flex-col hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950">
         
-        <!-- Header Navigation -->
         <nav class="bg-slate-900/50 backdrop-blur-md border-b border-white/5 p-3 sm:p-4 sticky top-0 z-10 shadow-lg">
             <div class="max-w-7xl mx-auto flex justify-between items-center gap-2">
                 <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
@@ -232,7 +232,6 @@
             </div>
         </nav>
 
-        <!-- Main Content Layout -->
         <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col lg:flex-row gap-6">
             
             <div class="w-full lg:w-1/3 flex flex-col gap-4 flex-shrink-0">
@@ -267,29 +266,23 @@
                     </div>
                 </div>
 
-                <!-- Dynamic Layout Container (Changes orientation based on widget type) -->
                 <div id="editor-layout" class="flex flex-col gap-6">
                     
-                    <!-- Preview Box -->
                     <div id="preview-wrapper" class="w-full flex-shrink-0">
                         <div class="flex justify-between items-end mb-3">
                             <h3 id="obs-hint-text" class="text-xs font-bold text-slate-400 uppercase tracking-wider">Предпросмотр <span class="lowercase text-[10px] text-blue-400 bg-blue-900/20 px-2 py-0.5 rounded font-mono">(Холст OBS: Ширина 800px, Высота 600px)</span></h3>
                         </div>
                         
-                        <!-- Fixed bounds for aspect ratio scaling -->
                         <div id="preview-bounds" class="bg-slate-950 border border-slate-800 rounded-xl w-full relative overflow-hidden checkerboard-bg shadow-inner transition-all duration-300">
-                            <!-- Container with absolute fixed dimensions inside -->
                             <div id="preview-container" class="absolute top-0 left-0 origin-top-left" style="width: 800px; height: 600px;"></div>
                         </div>
                     </div>
                     
-                    <!-- Form Box -->
                     <div id="settings-form-wrapper" class="w-full flex-grow">
                         <div id="settings-form" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
                     </div>
                 </div>
 
-                <!-- Delete Widget Button -->
                 <div class="mt-auto pt-8 flex justify-end">
                     <button onclick="deleteCurrentWidget()" class="text-red-400 hover:text-red-300 hover:bg-red-400/10 px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-2">
                         <i class="fas fa-trash-alt"></i> Удалить виджет
@@ -307,8 +300,6 @@
         </main>
     </div>
 
-    
-    <!-- Auth Modal -->
     <div id="auth-modal" class="modal px-4">
         <div class="bg-slate-900 border border-slate-700 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform transition-all relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
@@ -356,7 +347,6 @@
         </div>
     </div>
 
-    <!-- Create Widget Modal -->
     <div id="create-modal" class="modal px-4">
         <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-sm shadow-2xl">
             <h2 class="text-xl font-bold text-white mb-5">Новый виджет</h2>
@@ -380,7 +370,6 @@
         </div>
     </div>
 
-    <!-- Message Modal -->
     <div id="msg-modal" class="modal z-[100] px-4">
         <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-sm text-center shadow-2xl">
             <i id="msg-icon" class="fas fa-info-circle text-4xl mb-4 text-blue-500"></i>
@@ -390,7 +379,6 @@
         </div>
     </div>
 
-    <!-- Gift Selector Modal -->
     <div id="gift-selector-modal" class="modal z-[60] px-4">
         <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl relative">
             <div class="flex justify-between items-center mb-4">
@@ -403,10 +391,8 @@
         </div>
     </div>
 
-    <!-- Gift Editor Modal -->
     <div id="gift-editor-modal" class="modal z-[70] px-4">
         <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-4xl flex flex-col md:flex-row gap-6 shadow-2xl relative">
-            <!-- Left: Settings -->
             <div class="flex-1 space-y-4 overflow-y-auto custom-scroll max-h-[70vh] pr-2">
                 <div class="flex justify-between items-center mb-2">
                     <h2 class="text-xl font-bold text-white">Настройка стикера</h2>
@@ -481,11 +467,9 @@
                 </div>
             </div>
 
-            <!-- Right: Live Preview -->
             <div class="w-full md:w-[400px] flex-shrink-0 flex flex-col gap-2">
                 <button onclick="closeGiftEditor()" class="hidden md:block absolute top-4 right-4 text-slate-400 hover:text-white z-10"><i class="fas fa-times text-xl"></i></button>
                 <label class="block text-xs font-bold text-slate-400 uppercase text-center mt-2">Реальный масштаб</label>
-                <!-- Увеличили высоту превью для подарков, чтобы ничего не обрезалось -->
                 <div class="bg-slate-950 border border-slate-800 rounded-xl h-[450px] w-full flex items-center justify-center checkerboard-bg overflow-hidden relative shadow-inner">
                     <div id="ge-live-preview-container"></div>
                 </div>
@@ -497,12 +481,10 @@
     <div id="mascot-wrapper"></div>
 
     <script>
-        // Supabase Initialization
         var SUPABASE_URL = 'https://lqjagftaeejdufwwvjwd.supabase.co';
         var SUPABASE_KEY = 'sb_publishable_6-9IBhMX9CMVbIackZAJ9g_UUk5FDqx';
         var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Global State Variables
         var currentUser = null;
         var widgets = [];
         var currentWidget = null;
@@ -512,7 +494,6 @@
         var loadedFonts = new Set();
         var globalGifts = [];
         
-        // UI Constants
         const inputClass = "w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 text-white rounded-lg px-3 py-2 text-sm outline-none transition-all";
         const labelClass = "block text-xs font-medium text-slate-400 mb-1.5";
 
@@ -528,7 +509,7 @@
                 rows: [{ id: Date.now().toString(), speed: 15, direction: 'left', items: [] }]
             },
             'multi-slideshow': {
-                fontFamily: 'Inter', color: '#ffffff', delay: 5, transition: 'fade', rowHeight: 250, gap: 20,
+                fontFamily: 'Inter', color: '#ffffff', delay: 5, transition: 'fade', rowHeight: 320, gap: 20,
                 rows: [{ id: Date.now().toString(), items: [] }]
             }
         };
@@ -538,24 +519,21 @@
             const obsWidgetId = urlParams.get('widgetId');
 
             if (obsWidgetId) {
-                // OBS Mode
                 document.body.classList.add('is-obs-mode');
                 document.getElementById('obs-view').style.display = 'block';
                 document.getElementById('app-container').style.display = 'none';
                 loadGiftsFromDB().then(() => loadWidgetForOBS(obsWidgetId));
             } else {
-                // Editor Mode
                 document.getElementById('obs-view').style.display = 'none';
                 document.getElementById('app-container').classList.remove('hidden');
                 checkAuth();
                 loadGiftsFromDB();
-                initMascot(); // Инициализация маскота ТОЛЬКО в редакторе (не в OBS)
+                initMascot();
             }
             window.addEventListener('resize', resizePreview);
         });
 
         function initMascot() {
-            // Двойная защита от отображения в OBS
             if (window.location.search.includes('widgetId')) return;
 
             const wrapper = document.getElementById('mascot-wrapper');
@@ -572,25 +550,19 @@
             const video = document.getElementById('mascot-video');
             const bubble = document.getElementById('mascot-bubble');
             
-            // Жестко задаем стартовые координаты, чтобы маскот не улетал вниз из-за верстки
             mascot.style.top = '0px';
             mascot.style.left = '0px';
 
             let x = 50, y = 50; 
             let dx = 1.5, dy = 1.5; 
-            // Размеры контейнера при обычной картинке
             let currentWidth = 120, currentHeight = 120;
             let isVideoPlaying = false;
             let animationId;
-            let hasPlayedOnce = false;
 
             function animate() {
-                // Маскот летает всегда, независимо от того, картинка это или видео
                 const maxX = window.innerWidth - currentWidth;
-                // Защита: используем window.innerHeight и отнимаем 5px чтобы не цеплять скроллбары
                 const maxY = window.innerHeight - currentHeight - 5; 
                 
-                // Если окно браузера резко уменьшили, и маскот оказался за краем
                 if(x > maxX) x = maxX;
                 if(y > maxY) y = maxY;
 
@@ -605,46 +577,38 @@
                 animationId = requestAnimationFrame(animate);
             }
 
-            // Запускаем бесконечный цикл анимации
             animate();
 
-            // Периодическое появление текста-подсказки
             setInterval(() => {
-                if(!isVideoPlaying && !hasPlayedOnce && Math.random() > 0.5) {
+                if(!isVideoPlaying && Math.random() > 0.5) {
                     bubble.classList.add('show');
                     setTimeout(() => bubble.classList.remove('show'), 3000);
                 }
             }, 6000);
 
-            // Обработка клика
             mascot.addEventListener('click', () => {
-                if(isVideoPlaying || hasPlayedOnce) return;
+                if(isVideoPlaying) return;
                 isVideoPlaying = true;
-                hasPlayedOnce = true;
                 bubble.classList.remove('show');
                 
-                // Скрываем фото, показываем видео
                 img.style.display = 'none';
                 video.style.display = 'block';
-                
-                // Обновляем размеры для коллизий, так как видео чуть больше (160px)
                 currentWidth = 160;
                 currentHeight = 160;
                 
+                video.currentTime = 0;
                 video.play().catch(e => {
                     console.log("Autoplay failed", e);
                     revertMascot();
                 });
             });
 
-            // По окончании видео возвращаем все обратно
             video.addEventListener('ended', revertMascot);
 
             function revertMascot() {
                 isVideoPlaying = false;
                 video.style.display = 'none';
                 img.style.display = 'block';
-                // Возвращаем размеры для коллизий картинки
                 currentWidth = 120;
                 currentHeight = 120;
             }
@@ -788,8 +752,6 @@
 
         function selectWidget(widget) {
             currentWidget = widget; 
-            
-            // Миграция старых виджетов слайдшоу
             if (currentWidget.widget_type === 'multi-slideshow' && !currentWidget.config.rows) {
                 currentWidget.config.rows = [{ id: Date.now().toString(), items: [] }];
             }
@@ -822,7 +784,7 @@
                 await supabase.from('p_widgets').delete().eq('id', currentWidget.id);
                 currentWidget = null;
                 document.getElementById('editor-panel').classList.add('hidden'); document.getElementById('editor-panel').classList.remove('flex');
-                document.getElementById('empty-state').classList.remove('hidden'); await loadWidgets();
+                document.getElementById('empty-state').classList.add('hidden'); await loadWidgets();
                 btn.innerHTML = '<i class="fas fa-trash-alt"></i> Удалить виджет';
             } else {
                 btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Точно?';
@@ -837,7 +799,6 @@
             const isMarquee = currentWidget.widget_type === 'image-marquee';
             const fontsOptions = GOOGLE_FONTS.map(f => `<option value="${f}" ${c.fontFamily===f?'selected':''}>${f}</option>`).join('');
             
-            // Динамическая смена верстки: Слайдшоу - превью справа, Бегущая строка - сверху
             const editorLayout = document.getElementById('editor-layout');
             const previewWrapper = document.getElementById('preview-wrapper');
             const formWrapper = document.getElementById('settings-form-wrapper');
@@ -851,7 +812,6 @@
                 previewWrapper.className = 'w-full flex-shrink-0';
                 formWrapper.className = 'w-full flex-grow';
             }
-            // Форсируем пересчет размеров
             setTimeout(resizePreview, 50);
             
             let extraInputs = '';
@@ -892,16 +852,16 @@
                         <div>
                             <div class="flex justify-between items-end mb-2">
                                 <label class="block text-xs font-semibold text-slate-400">Ограничитель высоты каждой строки</label>
-                                <span id="val-row-height" class="text-xs font-mono text-blue-400 font-bold bg-blue-900/30 px-2 py-0.5 rounded">${c.rowHeight || 250}px</span>
+                                <span id="val-row-height" class="text-xs font-mono text-blue-400 font-bold bg-blue-900/30 px-2 py-0.5 rounded">${c.rowHeight || 320}px</span>
                             </div>
-                            <input type="range" id="setting-row-height" min="50" max="600" value="${c.rowHeight || 250}" oninput="document.getElementById('val-row-height').textContent = this.value + 'px'; debouncePreview()">
+                            <input type="range" id="setting-row-height" min="100" max="600" value="${c.rowHeight || 320}" oninput="document.getElementById('val-row-height').textContent = this.value + 'px'; debouncePreview()">
                         </div>
                         <div>
                             <div class="flex justify-between items-end mb-2">
                                 <label class="block text-xs font-semibold text-slate-400">Отступ между строками</label>
                                 <span id="val-gap" class="text-xs font-mono text-blue-400 font-bold bg-blue-900/30 px-2 py-0.5 rounded">${c.gap !== undefined ? c.gap : 20}px</span>
                             </div>
-                            <input type="range" id="setting-gap" min="-300" max="300" value="${c.gap !== undefined ? c.gap : 20}" oninput="document.getElementById('val-gap').textContent = this.value + 'px'; debouncePreview()">
+                            <input type="range" id="setting-gap" min="-200" max="300" value="${c.gap !== undefined ? c.gap : 20}" oninput="document.getElementById('val-gap').textContent = this.value + 'px'; debouncePreview()">
                         </div>
                     </div>
                 `;
@@ -1081,7 +1041,7 @@
             if(!currentWidget.config.rows[rowIndex].items) currentWidget.config.rows[rowIndex].items = [];
             currentWidget.config.rows[rowIndex].items.push({ 
                 type: 'gift', gift_id: giftId,
-                text: '{name}\\n{cost}₽', fontSize: 24, offset: 0,
+                text: '{name}\\n{cost}₽', fontSize: 28, offset: 0,
                 position: 'bottom', effect: 'shadow', effectColor: '#000000', effectWidth: 2
             });
             renderItemsList(`row-items-${rowIndex}`, currentWidget.config.rows[rowIndex].items, rowIndex);
@@ -1095,9 +1055,8 @@
             
             document.getElementById('ge-text').value = (item.text || '').replace(/\\n/g, '\n');
             
-            // Заполняем инпуты и их текстовые отображения
-            document.getElementById('ge-fontSize').value = item.fontSize || 24;
-            document.getElementById('val-ge-font').textContent = (item.fontSize || 24) + 'px';
+            document.getElementById('ge-fontSize').value = item.fontSize || 28;
+            document.getElementById('val-ge-font').textContent = (item.fontSize || 28) + 'px';
             
             document.getElementById('ge-offset').value = item.offset || 0;
             document.getElementById('val-ge-offset').textContent = (item.offset || 0) + 'px';
@@ -1137,7 +1096,6 @@
             const w = parseInt(width);
             if(w <= 0) return '';
             let shadow = [];
-            // Чем больше толщина, тем больше лучей для плотного круга
             const steps = w > 3 ? 16 : 8; 
             for(let i=0; i<steps; i++) {
                 const angle = (i * 2 * Math.PI) / steps;
@@ -1158,7 +1116,7 @@
             wrap.style.flexDirection = itemData.position === 'top' ? 'column-reverse' : 'column';
             wrap.style.alignItems = 'center';
             wrap.style.justifyContent = 'center';
-            wrap.style.padding = '10px'; // Защита от обрезки
+            wrap.style.padding = '10px';
 
             const img = document.createElement('img');
             img.src = dbGift.icon;
@@ -1171,12 +1129,12 @@
             text.innerHTML = tpl.replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
             text.style.fontFamily = `"${globalConfig.fontFamily || 'Inter'}", sans-serif`;
             text.style.color = globalConfig.color || '#fff';
-            text.style.fontSize = `${itemData.fontSize || 24}px`;
+            text.style.fontSize = `${itemData.fontSize || 28}px`;
             text.style.fontWeight = '900';
             text.style.textAlign = 'center';
             text.style.lineHeight = '1.1';
             text.style.whiteSpace = 'nowrap';
-            text.style.zIndex = '2'; // Всегда поверх
+            text.style.zIndex = '2';
             
             if(itemData.position === 'center') {
                 text.style.position = 'absolute';
@@ -1220,15 +1178,13 @@
                 effectColor: document.getElementById('ge-effectColor').value
             };
             
-            // Чтобы в превью подарок не был крошечным, берем за основу высоту строки
             const previewConfig = { ...currentWidget.config };
             if(currentWidget.widget_type === 'multi-slideshow') {
-                previewConfig.imageHeight = currentWidget.config.rowHeight - 20 || 200;
+                previewConfig.imageHeight = (currentWidget.config.rowHeight || 320) - 60;
             }
 
             container.innerHTML = '';
             const el = buildGiftPreviewElement(tempItem, previewConfig);
-            // Добавляем класс для масштаба, если нужно, но в большом окне оно и так ок
             container.appendChild(el);
             loadFont(currentWidget.config.fontFamily);
         }
@@ -1246,7 +1202,7 @@
             } else if (currentWidget.widget_type === 'multi-slideshow') {
                 c.delay = parseInt(document.getElementById('setting-delay').value) || 5;
                 c.transition = document.getElementById('setting-transition').value;
-                c.rowHeight = parseInt(document.getElementById('setting-row-height').value) || 250;
+                c.rowHeight = parseInt(document.getElementById('setting-row-height').value) || 320;
                 let g = parseInt(document.getElementById('setting-gap').value);
                 c.gap = isNaN(g) ? 20 : g;
             }
@@ -1274,25 +1230,35 @@
             const container = document.getElementById('preview-container');
             if(!bounds || !container) return;
             
-            // Высчитываем реальную высоту контента внутри контейнера. Минимум 600px.
-            let contentHeight = container.scrollHeight;
-            if (contentHeight < 600) contentHeight = 600;
+            const c = currentWidget ? currentWidget.config : null;
+            let targetHeight = 600;
 
-            // Вычисляем масштаб: ширина всегда жестко 800, аскейлим под родительский div
+            if (c) {
+                const rowsCount = (c.rows || []).length;
+                const gap = c.gap !== undefined ? c.gap : 20;
+                
+                if (currentWidget.widget_type === 'multi-slideshow') {
+                    const rHeight = c.rowHeight || 320;
+                    targetHeight = (rowsCount * rHeight) + Math.max(0, rowsCount - 1) * gap;
+                    targetHeight = Math.max(600, targetHeight);
+                } else if (currentWidget.widget_type === 'image-marquee') {
+                    const iHeight = c.imageHeight || 150;
+                    targetHeight = (rowsCount * iHeight) + Math.max(0, rowsCount - 1) * gap + 80;
+                    targetHeight = Math.max(600, targetHeight);
+                }
+            }
+
             const scale = bounds.clientWidth / 800;
             
-            // Применяем масштаб к контейнеру
             container.style.width = `800px`;
-            container.style.height = `${contentHeight}px`;
+            container.style.height = `${targetHeight}px`;
             container.style.transform = `scale(${scale})`;
             
-            // Регулируем высоту окна-обертки, чтобы оно показывало весь масштабированный контент
-            bounds.style.height = `${contentHeight * scale}px`;
+            bounds.style.height = `${targetHeight * scale}px`;
 
-            // Обновляем текст подсказки
             const hint = document.getElementById('obs-hint-text');
             if (hint) {
-                hint.innerHTML = `Предпросмотр <span class="lowercase text-[10px] text-blue-400 bg-blue-900/20 px-2 py-0.5 rounded font-mono">(Холст OBS: Ширина 800px, Высота ${contentHeight}px)</span>`;
+                hint.innerHTML = `Предпросмотр <span class="lowercase text-[10px] text-blue-400 bg-blue-900/20 px-2 py-0.5 rounded font-mono">(Холст OBS: Ширина 800px, Высота ${targetHeight}px)</span>`;
             }
         }
 
@@ -1300,8 +1266,6 @@
             const container = document.getElementById('preview-container');
             if(!container) return;
             renderWidget(currentWidget, container);
-            
-            // Ждем рендера DOM для пересчета scrollHeight
             setTimeout(resizePreview, 50); 
         }
 
@@ -1322,7 +1286,6 @@
                     
                     const track = document.createElement('div');
                     track.className = 'marquee-track-container';
-                    // Отрицательные отступы применяются через marginTop к последующим строкам
                     if (rowIndex > 0) {
                         track.style.marginTop = `${c.gap !== undefined ? c.gap : 20}px`;
                     }
@@ -1339,7 +1302,7 @@
                                 img.src = item.url; 
                                 img.style.maxHeight = `${c.imageHeight || 150}px`;
                                 img.className = "rounded-lg shadow-lg object-contain shrink-0";
-                                img.style.padding = '10px'; // Защита
+                                img.style.padding = '10px';
                                 content.appendChild(img);
                             } else if(item.type === 'gift') {
                                 content.appendChild(buildGiftPreviewElement(item, c));
@@ -1362,12 +1325,12 @@
 
                 (c.rows || []).forEach((row, rowIndex) => {
                     const rowContainer = document.createElement('div');
-                    rowContainer.style.height = `${c.rowHeight || 250}px`;
+                    const rHeight = c.rowHeight || 320;
+                    rowContainer.style.height = `${rHeight}px`;
                     rowContainer.style.width = '100%';
                     rowContainer.style.position = 'relative';
                     rowContainer.style.overflow = 'hidden';
                     
-                    // Отрицательные отступы
                     if (rowIndex > 0) {
                         rowContainer.style.marginTop = `${c.gap !== undefined ? c.gap : 20}px`;
                     }
@@ -1392,8 +1355,7 @@
                             slide.style.backgroundImage = `url('${item.url}')`;
                             slide.style.backgroundSize = 'contain';
                         } else if(item.type === 'gift') {
-                            // Для слайдшоу высота картинки берется из высоты строки минус отступы
-                            const giftEl = buildGiftPreviewElement(item, { ...c, imageHeight: (c.rowHeight || 250) - 20 });
+                            const giftEl = buildGiftPreviewElement(item, { ...c, imageHeight: rHeight - 50 });
                             slide.appendChild(giftEl);
                         }
                         
@@ -1428,7 +1390,6 @@
                 if (error || !data) throw error;
                 renderWidget(data, container);
                 
-                // Realtime subscription
                 supabase.channel(`public:p_widgets:id=eq.${id}`)
                     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'p_widgets', filter: `id=eq.${id}` }, payload => {
                         renderWidget(payload.new, container);
@@ -1447,7 +1408,6 @@
             document.body.appendChild(tempInput);
             tempInput.select(); document.execCommand("copy"); document.body.removeChild(tempInput);
             
-            // Подсказка показывает актуальную высоту из холста предпросмотра
             const container = document.getElementById('preview-container');
             const h = container ? Math.max(600, container.scrollHeight) : 600;
             showMessage("Скопировано!", `Ссылка для OBS скопирована.\nРекомендуемый размер источника: Ширина 800, Высота ${h}.`);
