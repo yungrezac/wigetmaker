@@ -115,7 +115,6 @@
         .trans-flip { transform: rotateY(90deg); opacity: 0; transition: all 0.8s ease-in; perspective: 1000px; }
         .trans-flip.active { opacity: 1; transform: rotateY(0deg); z-index: 1; transition-timing-function: ease-out;}
 
-        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -144,6 +143,22 @@
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 selection:bg-blue-500/30">
+
+    <!-- Летающий маскот -->
+    <div id="bouncing-mascot" style="position: fixed; top: 0; left: 0; z-index: 9999; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 140px; height: 140px; will-change: transform;">
+        
+        <!-- Облачко с текстом -->
+        <div id="mascot-speech" class="absolute -top-6 bg-white text-slate-900 text-sm font-bold px-4 py-2 rounded-2xl shadow-xl border border-slate-200 whitespace-nowrap transition-all duration-500 opacity-0 scale-90 pointer-events-none" style="transform-origin: bottom center;">
+            нажми на меня
+            <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-b border-r border-slate-200"></div>
+        </div>
+        
+        <!-- Изображение -->
+        <img id="mascot-img" src="Gemini_Generated_Image_hdls1shdls1shdls-Photoroom.png" alt="Mascot" style="width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'"/>
+        
+        <!-- Видео -->
+        <video id="mascot-video" src="video_2026-08-08_05-21-29.mp4" loop playsinline style="display: none; width: 130px; height: 130px; border-radius: 50%; object-fit: cover; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 3px solid rgba(255,255,255,0.1);"></video>
+    </div>
 
     <div id="obs-view" class="w-screen h-screen bg-transparent overflow-hidden hidden absolute top-0 left-0">
         <div id="widget-renderer" class="w-full h-full"></div>
@@ -1217,6 +1232,87 @@
         function escapeHtml(unsafe) {
             return (unsafe||'').toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
+
+        // ==========================================
+        // ЛОГИКА ЛЕТАЮЩЕГО МАСКОТА (DVD BOUNCE LOGIC)
+        // ==========================================
+        
+        const mascotContainer = document.getElementById('bouncing-mascot');
+        const mascotImg = document.getElementById('mascot-img');
+        const mascotVideo = document.getElementById('mascot-video');
+        const mascotSpeech = document.getElementById('mascot-speech');
+
+        // Стартовые координаты и скорость (медленная)
+        let mX = Math.random() * (window.innerWidth - 140);
+        let mY = Math.random() * (window.innerHeight - 140);
+        let mDx = 1.2; // Скорость по X
+        let mDy = 1.2; // Скорость по Y
+        const mascotSize = 140; // Размер контейнера
+        
+        let isVideoMode = false;
+        let animationId;
+
+        // Анимация перемещения и отскока
+        function animateMascot() {
+            const maxX = window.innerWidth - mascotSize;
+            const maxY = window.innerHeight - mascotSize;
+
+            mX += mDx;
+            mY += mDy;
+
+            // Отбивание от стенок
+            if (mX <= 0) { mX = 0; mDx *= -1; }
+            if (mX >= maxX) { mX = maxX; mDx *= -1; }
+            if (mY <= 0) { mY = 0; mDy *= -1; }
+            if (mY >= maxY) { mY = maxY; mDy *= -1; }
+
+            // Применяем трансформ
+            mascotContainer.style.transform = `translate(${mX}px, ${mY}px)`;
+            
+            animationId = requestAnimationFrame(animateMascot);
+        }
+
+        // Логика появления текста
+        function showRandomSpeech() {
+            if (isVideoMode) return; // Не показываем, если уже видео
+
+            // Вероятность 50% показать текст каждые 5-10 секунд
+            const shouldShow = Math.random() > 0.5;
+            
+            if (shouldShow) {
+                mascotSpeech.classList.remove('opacity-0', 'scale-90');
+                mascotSpeech.classList.add('opacity-100', 'scale-100');
+                
+                // Прячем через 3.5 секунды
+                setTimeout(() => {
+                    mascotSpeech.classList.remove('opacity-100', 'scale-100');
+                    mascotSpeech.classList.add('opacity-0', 'scale-90');
+                }, 3500);
+            }
+
+            // Планируем следующий показ через 5-10 секунд
+            setTimeout(showRandomSpeech, Math.random() * 5000 + 5000);
+        }
+
+        // Клик по маскоту
+        mascotContainer.addEventListener('click', () => {
+            if (!isVideoMode) {
+                isVideoMode = true;
+                
+                // Скрываем фото и текст
+                mascotImg.style.display = 'none';
+                mascotSpeech.style.display = 'none';
+                
+                // Показываем и запускаем видео
+                mascotVideo.style.display = 'block';
+                mascotVideo.play().catch(e => console.log("Браузер заблокировал автовоспроизведение видео:", e));
+            }
+        });
+
+        // Запуск логики маскота
+        animateMascot();
+        setTimeout(showRandomSpeech, 3000); // Первый чек через 3 секунды
+
     </script>
 </body>
 </html>
