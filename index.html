@@ -119,6 +119,8 @@
 
         #mascot-container {
             position: fixed;
+            top: 0;
+            left: 0;
             z-index: 9999999;
             cursor: pointer;
             will-change: transform;
@@ -1254,8 +1256,9 @@
                     document.body.appendChild(container);
                     container.style.display = 'block'; 
                     
-                    let x = Math.random() * (window.innerWidth - 150);
-                    let y = Math.random() * (window.innerHeight - 150);
+                    /* Задаем безопасную стартовую позицию, чтобы не зависеть от ширины на этапе загрузки */
+                    let x = 50;
+                    let y = 50;
                     let vx = 1.5 * (Math.random() > 0.5 ? 1 : -1);
                     let vy = 1.5 * (Math.random() > 0.5 ? 1 : -1);
                     let isVideoPlaying = false;
