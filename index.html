@@ -15,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         
         body {
             font-family: 'Inter', sans-serif;
@@ -68,14 +68,6 @@
             100% { transform: translateX(0); }
         }
 
-        .effect-glow { text-shadow: 0 0 10px currentColor, 0 0 20px currentColor; }
-        .effect-shadow { text-shadow: 4px 4px 8px rgba(0,0,0,0.8); }
-        .effect-outline { -webkit-text-stroke: var(--outline-width, 1px) var(--outline-color, #000); }
-        .effect-glow-outline { 
-            -webkit-text-stroke: var(--outline-width, 1px) var(--outline-color, #000);
-            text-shadow: 0 0 15px currentColor; 
-        }
-
         .slideshow-container {
             width: 100%;
             height: 100%;
@@ -125,14 +117,12 @@
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
 
-        /* Mascot Styles */
         #mascot-container {
             position: fixed;
-            z-index: 999999;
+            z-index: 9999999;
             cursor: pointer;
             will-change: transform;
             user-select: none;
-            /* Прячем до инициализации */
             display: none;
         }
         #mascot-bubble {
@@ -183,7 +173,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            pointer-events: none;
+            pointer-events: none; /* Запрещаем всплывающие элементы управления браузера */
         }
         #mascot-container:hover #mascot-img {
             transform: scale(1.1) rotate(5deg);
@@ -192,12 +182,10 @@
 </head>
 <body class="bg-slate-950 text-slate-100 selection:bg-blue-500/30">
 
-    <!-- OBS Overlay View -->
     <div id="obs-view" class="w-screen h-screen bg-transparent overflow-hidden hidden absolute top-0 left-0">
         <div id="widget-renderer" class="w-full h-full"></div>
     </div>
 
-    <!-- Main App UI -->
     <div id="app-container" class="min-h-screen flex flex-col hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950">
         <nav class="bg-slate-900/50 backdrop-blur-md border-b border-white/5 p-3 sm:p-4 sticky top-0 z-10 shadow-lg">
             <div class="max-w-7xl mx-auto flex justify-between items-center gap-2">
@@ -219,7 +207,6 @@
         </nav>
 
         <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col md:flex-row gap-6">
-            <!-- Sidebar -->
             <div class="w-full md:w-1/3 flex flex-col gap-4">
                 <div class="bg-slate-900/60 backdrop-blur-md border border-white/5 p-5 rounded-2xl flex justify-between items-center shadow-xl">
                     <div>
@@ -233,7 +220,6 @@
                 <div id="widgets-list" class="flex flex-col gap-3 overflow-y-auto max-h-[calc(100vh-220px)] custom-scroll pr-1 pb-4"></div>
             </div>
 
-            <!-- Editor -->
             <div class="w-full md:w-2/3 bg-slate-900/60 backdrop-blur-md border border-white/5 rounded-2xl p-6 hidden flex-col shadow-xl" id="editor-panel">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-slate-700/50 pb-5 gap-4">
                     <div>
@@ -278,7 +264,6 @@
         </main>
     </div>
 
-    <!-- Modals -->
 
     <!-- Auth Modal -->
     <div id="auth-modal" class="modal px-4">
@@ -345,9 +330,7 @@
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1.5">Тип виджета</label>
                     <select id="new-widget-type" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-4 py-2.5 outline-none appearance-none cursor-pointer">
-                        <option value="marquee">Бегущая строка (Текст)</option>
                         <option value="image-marquee">Бегущая строка (Фото + Подарки)</option>
-                        <option value="slideshow">Слайдшоу (Фото)</option>
                         <option value="multi-slideshow">Слайдшоу (Фото + Подарки)</option>
                     </select>
                 </div>
@@ -383,9 +366,9 @@
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Уникальный текст (поддерживает перенос строки)</label>
-                    <textarea id="edit-gift-text" rows="3" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-3 py-2 text-sm outline-none resize-none custom-scroll" placeholder="Например: Спасибо за поддержку!\nОт: Имя"></textarea>
-                    <p class="text-[10px] text-slate-500 mt-1">Доступные переменные: {name} - имя подарка, {cost} - цена</p>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Текст под подарком</label>
+                    <textarea id="edit-gift-text" rows="3" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-3 py-2 text-sm outline-none resize-none custom-scroll text-center" placeholder="Имя\n100₽"></textarea>
+                    <p class="text-[10px] text-slate-500 mt-1 text-center">Доступные переменные: {name} (имя подарка), {cost} (цена).<br>Используйте Enter для красивого переноса.</p>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
@@ -394,7 +377,7 @@
                         <input type="number" id="edit-gift-size" min="10" max="150" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-3 py-2 text-sm outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Сдвиг надписи (px)</label>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Сдвиг текста (px)</label>
                         <input type="number" id="edit-gift-offset" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-3 py-2 text-sm outline-none" title="Отрицательное значение поднимает текст выше, положительное - опускает ниже">
                     </div>
                 </div>
@@ -402,9 +385,9 @@
                 <div class="bg-indigo-900/20 border border-indigo-500/30 rounded-xl p-4 mt-2">
                     <label class="flex items-center gap-2 cursor-pointer mb-3">
                         <input type="checkbox" id="edit-gift-outline-enable" class="w-4 h-4 rounded text-blue-600 bg-slate-950 border-slate-700 focus:ring-blue-500" onchange="document.getElementById('outline-settings-group').style.opacity = this.checked ? '1' : '0.5'">
-                        <span class="text-sm font-semibold text-indigo-300">Включить общую контурную обводку</span>
+                        <span class="text-sm font-semibold text-indigo-300">Включить общую красивую обводку</span>
                     </label>
-                    <p class="text-[10px] text-slate-400 mb-3 leading-tight">Создает красивый цельный контур (тень), обхватывающий и картинку, и текст одновременно.</p>
+                    <p class="text-[10px] text-slate-400 mb-3 leading-tight">Объединяет картинку и текст в единый визуальный стикер.</p>
                     
                     <div id="outline-settings-group" class="grid grid-cols-2 gap-4 transition-opacity">
                         <div>
@@ -412,7 +395,7 @@
                             <input type="color" id="edit-gift-outline-color" class="h-8 w-full cursor-pointer bg-slate-950 border border-slate-700 rounded outline-none p-0.5">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1">Ширина контура</label>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Толщина контура</label>
                             <input type="number" id="edit-gift-outline-width" min="1" max="20" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-lg px-3 py-1.5 text-sm outline-none">
                         </div>
                     </div>
@@ -460,23 +443,14 @@
         const GOOGLE_FONTS = ["Inter", "Roboto", "Open Sans", "Montserrat", "Lato", "Poppins", "Oswald", "Source Sans Pro", "Raleway", "PT Sans", "Merriweather", "Nunito", "Concert One", "Bebas Neue", "Lobster", "Pacifico", "Caveat", "Amatic SC", "Permanent Marker", "Righteous", "Alfa Slab One", "Russo One", "Jost", "Playfair Display", "Cinzel", "Anton", "Bungee", "Dancing Script", "Exo 2", "Teko"];
 
         var DEFAULT_CONFIGS = {
-            marquee: {
-                text: 'Добро пожаловать на стрим!', speed: 15, color: '#ffffff', fontFamily: 'Inter',
-                fontSize: 64, effect: 'none', outlineColor: '#000000', outlineWidth: 2
-            },
             'image-marquee': {
-                gap: 20, imageHeight: 120,
-                textTemplate: '{name} - {cost}₽', textPosition: 'bottom', fontFamily: 'Inter',
-                fontSize: 24, color: '#ffffff', effect: 'outline', outlineColor: '#000000', outlineWidth: 2,
+                gap: 20, imageHeight: 150,
+                fontFamily: 'Inter', fontSize: 24, color: '#ffffff', 
                 rows: [{ id: Date.now().toString(), speed: 15, direction: 'left', images: [], gifts: [] }]
             },
-            slideshow: {
-                delay: 5, transition: 'fade', objectFit: 'contain', images: []
-            },
             'multi-slideshow': {
-                delay: 5, transition: 'fade', objectFit: 'contain', rowHeight: 200, gap: 20, imageHeight: 150,
-                textTemplate: '{name} - {cost}₽', textPosition: 'bottom', fontFamily: 'Inter',
-                fontSize: 24, color: '#ffffff', effect: 'outline', outlineColor: '#000000', outlineWidth: 2,
+                delay: 5, transition: 'fade', objectFit: 'contain', rowHeight: 250, gap: 20, imageHeight: 150,
+                fontFamily: 'Inter', fontSize: 24, color: '#ffffff', 
                 rows: [{ id: Date.now().toString(), images: [], gifts: [] }]
             }
         };
@@ -603,19 +577,18 @@
         async function loadWidgets() {
             const listEl = document.getElementById('widgets-list');
             listEl.innerHTML = '<div class="text-center text-slate-500 py-8 text-sm"><i class="fas fa-circle-notch fa-spin text-xl mb-2"></i><br>Загрузка...</div>';
+            
             const { data, error } = await supabase.from('p_widgets').select('*').order('created_at', { ascending: false });
             if (error) return listEl.innerHTML = '<div class="text-red-400 text-sm p-4 text-center">Ошибка загрузки. Проверьте подключение.</div>';
-            widgets = data || [];
             
-            // Миграция старых строковых подарков в объекты (для обратной совместимости)
+            // Фильтруем старые неподдерживаемые виджеты
+            widgets = (data || []).filter(w => w.widget_type === 'image-marquee' || w.widget_type === 'multi-slideshow');
+            
             widgets.forEach(w => {
                 if(w.config && w.config.rows) {
                     w.config.rows.forEach(r => {
                         if(r.gifts) {
-                            r.gifts = r.gifts.map(g => {
-                                if(typeof g === 'string') return { instanceId: Date.now()+Math.random().toString(36).substring(2), gift_id: g };
-                                return g;
-                            });
+                            r.gifts = r.gifts.map(g => typeof g === 'string' ? { instanceId: Date.now()+Math.random().toString(36).substring(2), gift_id: g } : g);
                         }
                     });
                 }
@@ -637,10 +610,8 @@
                 }`;
                 div.onclick = () => selectWidget(w);
                 
-                let icon = 'fa-font', typeText = 'Текст', color = 'text-purple-400', bg = 'bg-purple-400/10';
-                if(w.widget_type === 'slideshow') { icon = 'fa-images'; typeText = 'Слайдшоу'; color = 'text-green-400'; bg = 'bg-green-400/10'; }
-                if(w.widget_type === 'image-marquee') { icon = 'fa-film'; typeText = 'Строка картинок/подарков'; color = 'text-orange-400'; bg = 'bg-orange-400/10'; }
-                if(w.widget_type === 'multi-slideshow') { icon = 'fa-th-large'; typeText = 'Мульти-слайдшоу'; color = 'text-pink-400'; bg = 'bg-pink-400/10'; }
+                let icon = 'fa-film', typeText = 'Бегущая строка', color = 'text-orange-400', bg = 'bg-orange-400/10';
+                if(w.widget_type === 'multi-slideshow') { icon = 'fa-th-large'; typeText = 'Слайдшоу'; color = 'text-pink-400'; bg = 'bg-pink-400/10'; }
 
                 div.innerHTML = `
                     <div class="w-10 h-10 rounded-lg flex items-center justify-center ${bg} ${color} group-hover:scale-110 transition-transform"><i class="fas ${icon}"></i></div>
@@ -665,7 +636,7 @@
             if (!name) return alertCustom("Ошибка", "Введите название виджета");
 
             const config = JSON.parse(JSON.stringify(DEFAULT_CONFIGS[type]));
-            if(type === 'image-marquee' || type === 'multi-slideshow') config.rows[0].id = Date.now().toString();
+            if(config.rows) config.rows[0].id = Date.now().toString();
 
             const { data, error } = await supabase.from('p_widgets').insert([{ user_id: currentUser.id, name, widget_type: type, config }]).select();
             if (error) return alertCustom("Ошибка", "Не удалось создать виджет");
@@ -722,88 +693,62 @@
             const form = document.getElementById('settings-form');
             form.innerHTML = '';
             const c = currentWidget.config;
-
-            if (currentWidget.widget_type === 'marquee') {
-                const fontsOptions = GOOGLE_FONTS.map(f => `<option value="${f}" ${c.fontFamily===f?'selected':''}>${f}</option>`).join('');
-                form.innerHTML = `
-                    <div class="col-span-1 md:col-span-2"><label class="${labelClass}">Текст</label><input type="text" id="setting-text" value="${escapeHtml(c.text || '')}" oninput="debouncePreview()" class="${inputClass}"></div>
-                    <div><label class="${labelClass}">Шрифт</label><select id="setting-font" onchange="debouncePreview()" class="${inputClass}"><option value="Inter" ${!c.fontFamily||c.fontFamily==='Inter'?'selected':''}>Inter</option>${fontsOptions}</select></div>
-                    <div><label class="${labelClass}">Скорость (сек)</label><input type="number" id="setting-speed" value="${c.speed || 15}" min="1" max="100" oninput="debouncePreview()" class="${inputClass}"></div>
-                    <div><label class="${labelClass}">Размер шрифта (px)</label><input type="number" id="setting-size" value="${c.fontSize || 64}" min="12" max="300" oninput="debouncePreview()" class="${inputClass}"></div>
-                    <div><label class="${labelClass}">Цвет</label><div class="flex gap-2 bg-slate-950/50 p-1 rounded-lg border border-slate-700"><input type="color" id="setting-color" value="${c.color || '#ffffff'}" class="h-8 w-12 cursor-pointer bg-transparent border-0 rounded" oninput="debouncePreview()"><input type="text" value="${c.color || '#ffffff'}" class="flex-1 bg-transparent text-sm text-white outline-none px-2" readonly></div></div>
-                    <div class="col-span-1 md:col-span-2 bg-slate-800/30 p-4 rounded-xl border border-slate-700/50 mt-2">
-                        <h4 class="text-sm font-semibold text-white mb-4">Настройки эффектов</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div><label class="${labelClass}">Тип эффекта</label><select id="setting-effect" onchange="debouncePreview()" class="${inputClass}"><option value="none" ${c.effect==='none'?'selected':''}>Без эффекта</option><option value="glow" ${c.effect==='glow'?'selected':''}>Свечение (Неон)</option><option value="shadow" ${c.effect==='shadow'?'selected':''}>Тень</option><option value="outline" ${c.effect==='outline'?'selected':''}>Обводка</option><option value="glow-outline" ${c.effect==='glow-outline'?'selected':''}>Обводка + Свечение</option></select></div>
-                            <div><label class="${labelClass}">Цвет эффекта</label><div class="flex gap-2 bg-slate-950/50 p-1 rounded-lg border border-slate-700"><input type="color" id="setting-outline-color" value="${c.outlineColor || '#000000'}" class="h-8 w-8 cursor-pointer bg-transparent border-0 rounded" oninput="debouncePreview()"></div></div>
-                            <div><label class="${labelClass}">Толщина (px)</label><input type="number" id="setting-outline-width" value="${c.outlineWidth || 2}" min="0" max="20" oninput="debouncePreview()" class="${inputClass}"></div>
-                        </div>
-                    </div>
+            const isMarquee = currentWidget.widget_type === 'image-marquee';
+            const fontsOptions = GOOGLE_FONTS.map(f => `<option value="${f}" ${c.fontFamily===f?'selected':''}>${f}</option>`).join('');
+            
+            let extraInputs = '';
+            if(isMarquee){
+                extraInputs = `
+                    <div><label class="${labelClass}">Высота элементов (px)</label><input type="number" id="setting-img-height" value="${c.imageHeight || 150}" min="20" max="1000" oninput="debouncePreview()" class="${inputClass}"></div>
+                    <div><label class="${labelClass}">Отступ между строками (px)</label><input type="number" id="setting-gap" value="${c.gap || 20}" min="0" max="200" oninput="debouncePreview()" class="${inputClass}"></div>
                 `;
-            } 
-            else if (currentWidget.widget_type === 'slideshow') {
-                form.innerHTML = `
-                    <div><label class="${labelClass}">Задержка (сек)</label><input type="number" id="setting-delay" value="${c.delay || 5}" min="1" max="60" oninput="debouncePreview()" class="${inputClass}"></div>
-                    <div><label class="${labelClass}">Анимация</label><select id="setting-transition" onchange="debouncePreview()" class="${inputClass}"><option value="fade" ${c.transition==='fade'?'selected':''}>Fade</option><option value="slide-left" ${c.transition==='slide-left'?'selected':''}>Влево</option><option value="slide-right" ${c.transition==='slide-right'?'selected':''}>Вправо</option><option value="zoom-in" ${c.transition==='zoom-in'?'selected':''}>Zoom In</option></select></div>
-                    <div class="col-span-1 md:col-span-2"><label class="${labelClass}">Заполнение</label><select id="setting-fit" onchange="debouncePreview()" class="${inputClass}"><option value="contain" ${c.objectFit==='contain'?'selected':''}>Вмещать (с краями)</option><option value="cover" ${c.objectFit==='cover'?'selected':''}>Заполнять (обрезать)</option></select></div>
-                    <div class="col-span-1 md:col-span-2 mt-4 bg-slate-800/30 p-4 rounded-xl border border-slate-700/50">
-                        <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-3">
-                            <h4 class="text-sm font-semibold text-white"><i class="fas fa-images mr-2 text-slate-400"></i>Галлерея изображений</h4>
-                            <label class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg cursor-pointer text-xs font-medium transition-all"><i class="fas fa-upload mr-1"></i> Добавить фото<input type="file" accept="image/*" class="hidden" onchange="handleImageUpload(event, null)"></label>
-                        </div>
-                        <div id="image-list-global" class="grid grid-cols-3 md:grid-cols-5 gap-3"></div>
-                    </div>
+            } else {
+                extraInputs = `
+                    <div><label class="${labelClass}">Задержка показа (сек)</label><input type="number" id="setting-delay" value="${c.delay || 5}" min="1" max="60" oninput="debouncePreview()" class="${inputClass}"></div>
+                    <div><label class="${labelClass}">Анимация смены</label><select id="setting-transition" onchange="debouncePreview()" class="${inputClass}"><option value="fade" ${c.transition==='fade'?'selected':''}>Fade</option><option value="slide-left" ${c.transition==='slide-left'?'selected':''}>Влево</option><option value="zoom-in" ${c.transition==='zoom-in'?'selected':''}>Zoom</option></select></div>
+                    <div><label class="${labelClass}">Масштабирование фото</label><select id="setting-fit" onchange="debouncePreview()" class="${inputClass}"><option value="contain" ${c.objectFit==='contain'?'selected':''}>Вмещать</option><option value="cover" ${c.objectFit==='cover'?'selected':''}>Заполнять (обрезать)</option></select></div>
+                    <div><label class="${labelClass}">Высота элементов (px)</label><input type="number" id="setting-img-height" value="${c.imageHeight || 150}" min="50" max="1000" oninput="debouncePreview()" class="${inputClass}"></div>
+                    <div><label class="${labelClass}">Высота всей строки (px)</label><input type="number" id="setting-row-height" value="${c.rowHeight || 250}" min="50" max="1000" oninput="debouncePreview()" class="${inputClass}"></div>
+                    <div><label class="${labelClass}">Вертикальный отступ (px)</label><input type="number" id="setting-gap" value="${c.gap || 20}" min="0" max="200" oninput="debouncePreview()" class="${inputClass}"></div>
                 `;
-                renderImageList('image-list-global', c.images || [], null);
             }
-            else if (currentWidget.widget_type === 'image-marquee' || currentWidget.widget_type === 'multi-slideshow') {
-                const isMarquee = currentWidget.widget_type === 'image-marquee';
-                const fontsOptions = GOOGLE_FONTS.map(f => `<option value="${f}" ${c.fontFamily===f?'selected':''}>${f}</option>`).join('');
+
+            form.innerHTML = `
+                ${extraInputs}
                 
-                let extraInputs = '';
-                if(isMarquee){
-                    extraInputs = `
-                        <div><label class="${labelClass}">Высота картинок (px)</label><input type="number" id="setting-img-height" value="${c.imageHeight || 120}" min="20" max="1000" oninput="debouncePreview()" class="${inputClass}"></div>
-                        <div><label class="${labelClass}">Отступ строк (px)</label><input type="number" id="setting-gap" value="${c.gap || 20}" min="0" max="200" oninput="debouncePreview()" class="${inputClass}"></div>
-                    `;
-                } else {
-                    extraInputs = `
-                        <div><label class="${labelClass}">Задержка (сек)</label><input type="number" id="setting-delay" value="${c.delay || 5}" min="1" max="60" oninput="debouncePreview()" class="${inputClass}"></div>
-                        <div><label class="${labelClass}">Анимация</label><select id="setting-transition" onchange="debouncePreview()" class="${inputClass}"><option value="fade" ${c.transition==='fade'?'selected':''}>Fade</option><option value="slide-left" ${c.transition==='slide-left'?'selected':''}>Влево</option><option value="zoom-in" ${c.transition==='zoom-in'?'selected':''}>Zoom</option></select></div>
-                        <div><label class="${labelClass}">Заполнение</label><select id="setting-fit" onchange="debouncePreview()" class="${inputClass}"><option value="contain" ${c.objectFit==='contain'?'selected':''}>Contain</option><option value="cover" ${c.objectFit==='cover'?'selected':''}>Cover</option></select></div>
-                        <div><label class="${labelClass}">Высота картинок (px)</label><input type="number" id="setting-img-height" value="${c.imageHeight || 150}" min="50" max="1000" oninput="debouncePreview()" class="${inputClass}"></div>
-                        <div><label class="${labelClass}">Высота строки (px)</label><input type="number" id="setting-row-height" value="${c.rowHeight || 200}" min="50" max="1000" oninput="debouncePreview()" class="${inputClass}"></div>
-                        <div><label class="${labelClass}">Отступ (px)</label><input type="number" id="setting-gap" value="${c.gap || 20}" min="0" max="200" oninput="debouncePreview()" class="${inputClass}"></div>
-                    `;
-                }
+                <div class="col-span-1 md:col-span-2 bg-slate-800/30 p-4 rounded-xl border border-slate-700/50 mt-2">
+                    <h4 class="text-sm font-semibold text-white mb-4"><i class="fas fa-font mr-2 text-slate-400"></i>Глобальные настройки шрифта</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="${labelClass}">Семейство шрифта</label>
+                            <select id="setting-font" onchange="debouncePreview()" class="${inputClass}">
+                                <option value="Inter" ${!c.fontFamily||c.fontFamily==='Inter'?'selected':''}>Inter</option>
+                                ${fontsOptions}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="${labelClass}">Базовый размер (px)</label>
+                            <input type="number" id="setting-size" value="${c.fontSize || 24}" min="10" max="100" oninput="debouncePreview()" class="${inputClass}">
+                        </div>
+                        <div>
+                            <label class="${labelClass}">Цвет текста</label>
+                            <div class="flex gap-2 bg-slate-950/50 p-1 rounded-lg border border-slate-700">
+                                <input type="color" id="setting-color" value="${c.color || '#ffffff'}" class="h-8 w-12 cursor-pointer bg-transparent border-0 rounded" oninput="debouncePreview()">
+                                <input type="text" value="${c.color || '#ffffff'}" class="flex-1 bg-transparent text-sm text-white outline-none px-2" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                form.innerHTML = `
-                    ${extraInputs}
-                    <div class="col-span-1 md:col-span-2 mt-4 bg-slate-800/30 p-4 rounded-xl border border-slate-700/50">
-                        <div class="flex justify-between items-center mb-3">
-                            <h4 class="text-sm font-semibold text-white"><i class="fas fa-gift mr-2 text-slate-400"></i>Шаблон текста подарков (по умолчанию)</h4>
-                        </div>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div class="col-span-2"><label class="${labelClass}">Базовый шаблон ( {name} и {cost} )</label><input type="text" id="setting-template" value="${escapeHtml(c.textTemplate || '{name} - {cost}₽')}" oninput="debouncePreview()" class="${inputClass}"></div>
-                            <div class="col-span-2"><label class="${labelClass}">Позиция</label><select id="setting-text-pos" onchange="debouncePreview()" class="${inputClass}"><option value="bottom" ${c.textPosition==='bottom'?'selected':''}>Под картинкой</option><option value="top" ${c.textPosition==='top'?'selected':''}>Над картинкой</option><option value="center" ${c.textPosition==='center'?'selected':''}>По центру (поверх)</option></select></div>
-                            <div class="col-span-2"><label class="${labelClass}">Шрифт</label><select id="setting-font" onchange="debouncePreview()" class="${inputClass}"><option value="Inter" ${!c.fontFamily||c.fontFamily==='Inter'?'selected':''}>Inter</option>${fontsOptions}</select></div>
-                            <div><label class="${labelClass}">Размер</label><input type="number" id="setting-size" value="${c.fontSize || 24}" min="10" max="100" oninput="debouncePreview()" class="${inputClass}"></div>
-                            <div><label class="${labelClass}">Цвет текста</label><input type="color" id="setting-color" value="${c.color || '#ffffff'}" class="h-9 w-full rounded cursor-pointer border-0 bg-slate-900" oninput="debouncePreview()"></div>
-                            <div class="col-span-2"><label class="${labelClass}">Эффект (только текст)</label><select id="setting-effect" onchange="debouncePreview()" class="${inputClass}"><option value="none" ${c.effect==='none'?'selected':''}>Без эффекта</option><option value="glow" ${c.effect==='glow'?'selected':''}>Свечение</option><option value="shadow" ${c.effect==='shadow'?'selected':''}>Тень</option><option value="outline" ${c.effect==='outline'?'selected':''}>Обводка</option><option value="glow-outline" ${c.effect==='glow-outline'?'selected':''}>Обводка + Свечение</option></select></div>
-                            <div><label class="${labelClass}">Цвет эффекта</label><input type="color" id="setting-outline-color" value="${c.outlineColor || '#000000'}" class="h-9 w-full rounded cursor-pointer border-0 bg-slate-900" oninput="debouncePreview()"></div>
-                            <div><label class="${labelClass}">Ширина</label><input type="number" id="setting-outline-width" value="${c.outlineWidth || 2}" min="0" max="20" oninput="debouncePreview()" class="${inputClass}"></div>
-                        </div>
+                <div class="col-span-1 md:col-span-2 mt-2 bg-slate-800/30 p-4 rounded-xl border border-slate-700/50">
+                    <div class="flex justify-between items-center mb-5 border-b border-slate-700 pb-3">
+                        <h4 class="text-sm font-semibold text-white"><i class="fas fa-layer-group mr-2 text-slate-400"></i>Управление строками (Контент)</h4>
+                        <button onclick="addRow()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all shadow-md"><i class="fas fa-plus mr-1"></i> Добавить строку</button>
                     </div>
-                    <div class="col-span-1 md:col-span-2 mt-4 bg-slate-800/30 p-4 rounded-xl border border-slate-700/50">
-                        <div class="flex justify-between items-center mb-5 border-b border-slate-700 pb-3">
-                            <h4 class="text-sm font-semibold text-white"><i class="fas fa-layer-group mr-2 text-slate-400"></i>Управление строками (Изображения и Подарки)</h4>
-                            <button onclick="addRow()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all shadow-md"><i class="fas fa-plus mr-1"></i> Добавить строку</button>
-                        </div>
-                        <div id="rows-container" class="space-y-4"></div>
-                    </div>
-                `;
-                renderRowsEditor();
-            }
+                    <div id="rows-container" class="space-y-4"></div>
+                </div>
+            `;
+            renderRowsEditor();
         }
 
         function renderRowsEditor() {
@@ -837,8 +782,8 @@
                         <div class="flex justify-between items-center mb-3">
                             <label class="block text-xs font-semibold text-slate-400">Содержимое (Смешанное)</label>
                             <div class="flex gap-2">
-                                <label class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-2 py-1.5 rounded cursor-pointer text-xs transition-colors"><i class="fas fa-image"></i> Фото <input type="file" accept="image/*" class="hidden" onchange="handleImageUpload(event, ${index})"></label>
-                                <button onclick="openGiftSelectorForAdding(${index})" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1.5 rounded text-xs transition-colors shadow-lg"><i class="fas fa-plus"></i> Подарок</button>
+                                <label class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-2 py-1.5 rounded cursor-pointer text-xs transition-colors"><i class="fas fa-image"></i> Загрузить фото <input type="file" accept="image/*" class="hidden" onchange="handleImageUpload(event, ${index})"></label>
+                                <button onclick="openGiftSelectorForAdding(${index})" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1.5 rounded text-xs transition-colors shadow-lg"><i class="fas fa-gift"></i> Добавить подарок</button>
                             </div>
                         </div>
                         <div id="row-items-${index}" class="flex gap-3 overflow-x-auto pb-2 custom-scroll items-center"></div>
@@ -857,20 +802,20 @@
             list.innerHTML = '';
             
             const images = row.images || [];
-            const gifts = row.gifts || []; // Array of objects
+            const gifts = row.gifts || []; 
 
             if(images.length === 0 && gifts.length === 0) {
-                list.innerHTML = '<div class="w-full text-slate-500 text-xs text-center py-6 border border-dashed border-slate-800 rounded-lg">Пусто. Загрузите фото или добавьте подарки</div>';
+                list.innerHTML = '<div class="w-full text-slate-500 text-xs text-center py-6 border border-dashed border-slate-800 rounded-lg">Пусто. Загрузите фото или добавьте подарки из базы</div>';
                 return;
             }
 
             images.forEach((url, i) => {
                 const div = document.createElement('div');
-                div.className = 'relative flex-shrink-0 w-20 h-20 bg-slate-900 rounded-lg group overflow-hidden border border-slate-700 shadow-sm';
+                div.className = 'relative flex-shrink-0 w-24 h-24 bg-slate-900 rounded-lg group overflow-hidden border border-slate-700 shadow-sm';
                 div.innerHTML = `
                     <img src="${url}" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <button onclick="removeImage(${i}, ${rowIndex})" class="bg-red-500 text-white w-7 h-7 rounded flex items-center justify-center text-xs"><i class="fas fa-trash-alt"></i></button>
+                        <button onclick="removeImage(${i}, ${rowIndex})" class="bg-red-500 text-white w-8 h-8 rounded flex items-center justify-center text-sm shadow"><i class="fas fa-trash-alt"></i></button>
                     </div>
                 `;
                 list.appendChild(div);
@@ -881,10 +826,10 @@
                 if(!gData) return;
                 
                 const div = document.createElement('div');
-                div.className = 'relative flex-shrink-0 w-24 h-24 bg-indigo-900/40 rounded-lg group overflow-hidden border border-indigo-700/50 shadow-sm flex flex-col items-center justify-center p-1';
+                div.className = 'relative flex-shrink-0 w-28 h-28 bg-indigo-900/40 rounded-lg group overflow-hidden border border-indigo-700/50 shadow-sm flex flex-col items-center justify-center p-2';
                 div.innerHTML = `
-                    <img src="${gData.icon}" class="w-10 h-10 object-contain mb-1">
-                    <div class="text-[9px] text-indigo-200 font-medium truncate w-full text-center">Индивидуальный<br>подарок</div>
+                    <img src="${gData.icon}" class="w-12 h-12 object-contain mb-1 drop-shadow-md">
+                    <div class="text-[10px] text-indigo-200 font-medium truncate w-full text-center">${gData.name}</div>
                     <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 backdrop-blur-sm">
                         <button onclick="openGiftEditModal(${rowIndex}, '${giftInstance.instanceId}')" class="bg-blue-500 text-white w-8 h-8 rounded flex items-center justify-center text-sm shadow"><i class="fas fa-cog"></i></button>
                         <button onclick="removeGiftFromRow('${giftInstance.instanceId}', ${rowIndex})" class="bg-red-500 text-white w-8 h-8 rounded flex items-center justify-center text-sm shadow"><i class="fas fa-trash-alt"></i></button>
@@ -916,11 +861,10 @@
             const gData = giftLibrary.find(g => g.gift_id === giftId);
             if(!row.gifts) row.gifts = [];
             
-            // Generate default specific config
             const newInstance = {
                 instanceId: Date.now().toString() + Math.random().toString(36).substr(2, 5),
                 gift_id: giftId,
-                customText: currentWidget.config.textTemplate || '{name} - {cost}₽',
+                customText: '{name}\n{cost}₽', // Красивый шаблон с переносом по умолчанию
                 fontSize: currentWidget.config.fontSize || 24,
                 verticalOffset: 0,
                 groupOutline: false,
@@ -949,7 +893,7 @@
             if(!giftInstance) return;
 
             document.getElementById('edit-gift-text').value = giftInstance.customText || '';
-            document.getElementById('edit-gift-size').value = giftInstance.fontSize || 24;
+            document.getElementById('edit-gift-size').value = giftInstance.fontSize || currentWidget.config.fontSize || 24;
             document.getElementById('edit-gift-offset').value = giftInstance.verticalOffset || 0;
             
             const outlineEnable = document.getElementById('edit-gift-outline-enable');
@@ -998,19 +942,6 @@
             debouncePreview();
         }
 
-        function renderImageList(containerId, images, rowIndex) {
-            const list = document.getElementById(containerId);
-            if(!list) return;
-            list.innerHTML = '';
-            if(images.length === 0) { list.innerHTML = '<div class="w-full text-slate-500 text-xs text-center py-6 border border-dashed border-slate-700 rounded-lg">Пусто</div>'; return; }
-            images.forEach((url, i) => {
-                const div = document.createElement('div');
-                div.className = 'relative flex-shrink-0 w-20 h-20 bg-slate-900 rounded-lg group overflow-hidden border border-slate-700 shadow-sm';
-                div.innerHTML = `<img src="${url}" class="w-full h-full object-cover"><div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><button onclick="removeImage(${i}, ${rowIndex})" class="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs"><i class="fas fa-trash-alt"></i></button></div>`;
-                list.appendChild(div);
-            });
-        }
-
         async function handleImageUpload(event, rowIndex) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1025,61 +956,37 @@
                 if (error) throw error;
                 const { data: publicData } = supabase.storage.from('p_widget_assets').getPublicUrl(filePath);
 
-                if (rowIndex !== null) {
-                    if (!currentWidget.config.rows[rowIndex].images) currentWidget.config.rows[rowIndex].images = [];
-                    currentWidget.config.rows[rowIndex].images.push(publicData.publicUrl);
-                    renderRowItems(`row-items-${rowIndex}`, currentWidget.config.rows[rowIndex], rowIndex);
-                } else {
-                    if (!currentWidget.config.images) currentWidget.config.images = [];
-                    currentWidget.config.images.push(publicData.publicUrl);
-                    renderImageList('image-list-global', currentWidget.config.images, null);
-                }
+                if (!currentWidget.config.rows[rowIndex].images) currentWidget.config.rows[rowIndex].images = [];
+                currentWidget.config.rows[rowIndex].images.push(publicData.publicUrl);
+                renderRowItems(`row-items-${rowIndex}`, currentWidget.config.rows[rowIndex], rowIndex);
+                
                 updatePreview(); saveWidget();
             } catch (err) { console.error(err); alertCustom("Ошибка", "Сбой загрузки изображения"); } 
             finally { label.innerHTML = originalHtml; label.classList.remove('opacity-75', 'pointer-events-none'); event.target.value = ''; }
         }
 
         function removeImage(imgIndex, rowIndex) {
-            if (rowIndex !== null) {
-                currentWidget.config.rows[rowIndex].images.splice(imgIndex, 1);
-                renderRowItems(`row-items-${rowIndex}`, currentWidget.config.rows[rowIndex], rowIndex);
-            } else {
-                currentWidget.config.images.splice(imgIndex, 1);
-                renderImageList('image-list-global', currentWidget.config.images, null);
-            }
+            currentWidget.config.rows[rowIndex].images.splice(imgIndex, 1);
+            renderRowItems(`row-items-${rowIndex}`, currentWidget.config.rows[rowIndex], rowIndex);
             updatePreview(); saveWidget();
         }
 
         function syncFormToConfig() {
             if (!currentWidget) return;
             const c = currentWidget.config;
-            if (currentWidget.widget_type === 'marquee') {
-                c.text = document.getElementById('setting-text').value; c.fontFamily = document.getElementById('setting-font').value;
-                c.speed = parseInt(document.getElementById('setting-speed').value) || 15; c.color = document.getElementById('setting-color').value;
-                c.fontSize = parseInt(document.getElementById('setting-size').value) || 64; c.effect = document.getElementById('setting-effect').value;
-                c.outlineColor = document.getElementById('setting-outline-color').value; c.outlineWidth = parseInt(document.getElementById('setting-outline-width').value) || 2;
-            } else if (currentWidget.widget_type === 'slideshow') {
-                c.delay = parseInt(document.getElementById('setting-delay').value) || 5; c.transition = document.getElementById('setting-transition').value;
-                c.objectFit = document.getElementById('setting-fit').value;
-            } else if (currentWidget.widget_type === 'image-marquee' || currentWidget.widget_type === 'multi-slideshow') {
-                c.imageHeight = parseInt(document.getElementById('setting-img-height').value) || 120;
-                c.gap = parseInt(document.getElementById('setting-gap').value) || 20;
-                
-                c.textTemplate = document.getElementById('setting-template').value;
-                c.fontFamily = document.getElementById('setting-font').value;
-                c.fontSize = parseInt(document.getElementById('setting-size').value) || 24;
-                c.color = document.getElementById('setting-color').value;
-                c.effect = document.getElementById('setting-effect').value;
-                c.outlineColor = document.getElementById('setting-outline-color').value;
-                c.outlineWidth = parseInt(document.getElementById('setting-outline-width').value) || 2;
-                c.textPosition = document.getElementById('setting-text-pos').value;
+            
+            c.imageHeight = parseInt(document.getElementById('setting-img-height').value) || 150;
+            c.gap = parseInt(document.getElementById('setting-gap').value) || 20;
+            
+            c.fontFamily = document.getElementById('setting-font').value;
+            c.fontSize = parseInt(document.getElementById('setting-size').value) || 24;
+            c.color = document.getElementById('setting-color').value;
 
-                if (currentWidget.widget_type === 'multi-slideshow') {
-                    c.delay = parseInt(document.getElementById('setting-delay').value) || 5;
-                    c.transition = document.getElementById('setting-transition').value;
-                    c.objectFit = document.getElementById('setting-fit').value;
-                    c.rowHeight = parseInt(document.getElementById('setting-row-height').value) || 200;
-                }
+            if (currentWidget.widget_type === 'multi-slideshow') {
+                c.delay = parseInt(document.getElementById('setting-delay').value) || 5;
+                c.transition = document.getElementById('setting-transition').value;
+                c.objectFit = document.getElementById('setting-fit').value;
+                c.rowHeight = parseInt(document.getElementById('setting-row-height').value) || 250;
             }
         }
 
@@ -1093,7 +1000,7 @@
             const id = 'font-' + fontName.replace(/\s+/g, '-');
             if (!document.getElementById(id)) {
                 const link = document.createElement('link'); link.id = id; link.rel = 'stylesheet';
-                link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/\s+/g, '+')}:wght@400;700;900&display=swap`;
+                link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/\s+/g, '+')}:wght@400;700;800;900&display=swap`;
                 document.head.appendChild(link); loadedFonts.add(fontName);
             }
         }
@@ -1102,13 +1009,12 @@
             const item = document.createElement('div');
             item.style.position = 'relative';
             item.style.display = 'flex';
+            item.style.flexDirection = 'column';
             item.style.alignItems = 'center';
             item.style.justifyContent = 'center';
+            item.style.gap = '2px';
             
-            if (globalConfig.textPosition === 'top') item.style.flexDirection = 'column-reverse';
-            else if (globalConfig.textPosition === 'bottom') item.style.flexDirection = 'column';
-            
-            // Групповая обводка (комбинированный drop-shadow)
+            // Если включена групповая обводка — рисуем красивый плотный контур вокруг всего блока
             if (giftInstance && giftInstance.groupOutline) {
                 const w = giftInstance.groupOutlineWidth || 3;
                 const c = giftInstance.groupOutlineColor || '#ffffff';
@@ -1126,47 +1032,34 @@
 
             const img = document.createElement('img');
             img.src = giftData.icon;
-            img.style.height = `${globalConfig.imageHeight || 120}px`;
-            // Убираем свою обводку у картинки если включена групповая, чтобы не перебивало
+            img.style.height = `${globalConfig.imageHeight || 150}px`;
+            // Убираем отдельную тень у картинки, если включен общий контур
             img.className = (giftInstance && giftInstance.groupOutline) ? "object-contain" : "object-contain drop-shadow-xl";
             
             const text = document.createElement('div');
-            // Если текст пустой, будет пусто. Если не настроен вообще (старая версия), берем глобальный.
-            let tpl = (giftInstance && giftInstance.customText !== undefined) ? giftInstance.customText : (globalConfig.textTemplate || '{name}');
             
+            let tpl = (giftInstance && giftInstance.customText !== undefined) ? giftInstance.customText : '{name}\n{cost}₽';
             tpl = tpl.replace(/{name}/g, giftData.name).replace(/{cost}/g, giftData.cost);
-            text.innerHTML = escapeHtml(tpl).replace(/\n/g, '<br>'); // Поддержка переноса строк
+            text.innerHTML = escapeHtml(tpl).replace(/\n/g, '<br>');
             
             text.style.fontFamily = `"${globalConfig.fontFamily || 'Inter'}", sans-serif`;
             text.style.fontSize = `${(giftInstance && giftInstance.fontSize) ? giftInstance.fontSize : (globalConfig.fontSize || 24)}px`;
             text.style.color = globalConfig.color || '#fff';
-            text.style.fontWeight = 'bold';
+            text.style.fontWeight = '800'; 
             text.style.textAlign = 'center';
-            text.style.whiteSpace = 'pre-wrap'; // На всякий случай для правильного рендеринга
+            text.style.lineHeight = '1.1'; // Плотно прижимаем строки текста друг к другу
             text.style.zIndex = '2';
+            text.style.marginTop = '-5px'; // Приближаем текст к картинке
             
-            // Вертикальный сдвиг
+            // Индивидуальный сдвиг текста
             if (giftInstance && giftInstance.verticalOffset) {
                 text.style.transform = `translateY(${giftInstance.verticalOffset}px)`;
             }
 
-            if (globalConfig.textPosition === 'center') {
-                text.style.position = 'absolute'; text.style.top = '50%'; text.style.left = '50%';
-                if (giftInstance && giftInstance.verticalOffset) {
-                    text.style.transform = `translate(-50%, -50%) translateY(${giftInstance.verticalOffset}px)`;
-                } else {
-                    text.style.transform = 'translate(-50%, -50%)';
-                }
-            } else {
-                text.style.marginTop = globalConfig.textPosition === 'bottom' ? '12px' : '0';
-                text.style.marginBottom = globalConfig.textPosition === 'top' ? '12px' : '0';
-            }
-            
-            // Если включена групповая обводка, отключаем индивидуальные CSS-эффекты текста, чтобы не было "грязи"
+            // Если общая обводка не включена, добавим тексту небольшую собственную черную обводку, чтобы он читался
             if (!giftInstance || !giftInstance.groupOutline) {
-                if(globalConfig.effect && globalConfig.effect !== 'none') text.classList.add(`effect-${globalConfig.effect}`);
-                text.style.setProperty('--outline-color', globalConfig.outlineColor || '#000');
-                text.style.setProperty('--outline-width', `${globalConfig.outlineWidth || 2}px`);
+                text.style.webkitTextStroke = `1px rgba(0,0,0,0.8)`;
+                text.style.textShadow = `2px 2px 4px rgba(0,0,0,0.8)`;
             }
             
             item.appendChild(img);
@@ -1186,25 +1079,9 @@
             if (previewIntervals) { previewIntervals.forEach(clearInterval); previewIntervals = []; }
             
             const c = widget.config;
+            loadFont(c.fontFamily);
 
-            if (widget.widget_type === 'marquee') {
-                loadFont(c.fontFamily);
-                const wrapper = document.createElement('div'); wrapper.className = 'marquee-wrapper';
-                const track = document.createElement('div'); track.className = 'marquee-track-container';
-                const buildContent = () => {
-                    const span = document.createElement('div'); span.className = 'marquee-content font-bold';
-                    span.textContent = c.text || 'Текст'; span.style.color = c.color || '#fff';
-                    span.style.fontSize = `${c.fontSize || 64}px`; span.style.fontFamily = `"${c.fontFamily || 'Inter'}", sans-serif`;
-                    span.style.animation = `marquee-left ${c.speed || 15}s linear infinite`;
-                    if(c.effect && c.effect !== 'none') span.classList.add(`effect-${c.effect}`);
-                    span.style.setProperty('--outline-color', c.outlineColor || '#000'); span.style.setProperty('--outline-width', `${c.outlineWidth || 2}px`);
-                    return span;
-                };
-                track.appendChild(buildContent()); track.appendChild(buildContent()); 
-                wrapper.appendChild(track); container.appendChild(wrapper);
-            } 
-            else if (widget.widget_type === 'image-marquee') {
-                loadFont(c.fontFamily);
+            if (widget.widget_type === 'image-marquee') {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'marquee-wrapper'; wrapper.style.gap = `${c.gap || 20}px`;
 
@@ -1221,8 +1098,8 @@
                         content.style.animation = `marquee-${row.direction || 'left'} ${row.speed || 15}s linear infinite`;
                         
                         images.forEach(url => {
-                            const img = document.createElement('img'); img.src = url; img.style.height = `${c.imageHeight || 120}px`;
-                            img.className = "rounded shadow-lg object-contain"; content.appendChild(img);
+                            const img = document.createElement('img'); img.src = url; img.style.height = `${c.imageHeight || 150}px`;
+                            img.className = "rounded-lg shadow-lg object-contain"; content.appendChild(img);
                         });
                         
                         gifts.forEach(giftInstance => {
@@ -1238,35 +1115,13 @@
                 if(wrapper.children.length === 0) wrapper.innerHTML = '<div class="text-slate-500 text-sm font-medium m-auto">Добавьте фото/подарки в строки</div>';
                 container.appendChild(wrapper);
             }
-            else if (widget.widget_type === 'slideshow') {
-                const images = c.images || [];
-                if (images.length === 0) { container.innerHTML = '<div class="flex items-center justify-center w-full h-full text-slate-500 font-medium text-sm">Добавьте фото</div>'; return; }
-                const wrap = document.createElement('div'); wrap.className = 'slideshow-container';
-                const slideElements = [];
-                images.forEach((url, i) => {
-                    const slide = document.createElement('div');
-                    slide.className = `slideshow-slide trans-${c.transition || 'fade'} ${i === 0 ? 'active' : ''}`;
-                    slide.style.backgroundImage = `url('${url}')`; slide.style.backgroundSize = c.objectFit || 'contain';
-                    wrap.appendChild(slide); slideElements.push(slide);
-                });
-                container.appendChild(wrap);
-                if (images.length > 1) {
-                    let currentIndex = 0; const delayMs = (c.delay || 5) * 1000;
-                    previewInterval = setInterval(() => {
-                        slideElements[currentIndex].classList.remove('active');
-                        currentIndex = (currentIndex + 1) % images.length;
-                        slideElements[currentIndex].classList.add('active');
-                    }, delayMs);
-                }
-            }
             else if (widget.widget_type === 'multi-slideshow') {
-                loadFont(c.fontFamily);
                 const wrapper = document.createElement('div');
                 wrapper.className = 'w-full h-full flex flex-col justify-center'; wrapper.style.gap = `${c.gap || 20}px`;
 
                 (c.rows || []).forEach(row => {
                     const rowContainer = document.createElement('div');
-                    rowContainer.style.height = `${c.rowHeight || 200}px`; rowContainer.style.width = '100%';
+                    rowContainer.style.height = `${c.rowHeight || 250}px`; rowContainer.style.width = '100%';
                     rowContainer.style.position = 'relative'; rowContainer.style.overflow = 'hidden';
 
                     const images = row.images || []; const gifts = row.gifts || [];
@@ -1322,7 +1177,6 @@
                 const { data, error } = await supabase.from('p_widgets').select('*').eq('id', id).single();
                 if (error || !data) throw error;
                 
-                // Простая миграция прямо в OBS, если данные старого формата
                 if(data.config && data.config.rows) {
                     data.config.rows.forEach(r => {
                         if(r.gifts) r.gifts = r.gifts.map(g => typeof g === 'string' ? { instanceId: '0', gift_id: g } : g);
@@ -1364,36 +1218,37 @@
         function escapeHtml(unsafe) { return (unsafe||'').toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
         (function() {
-            try {
-                const container = document.createElement('div');
-                container.id = 'mascot-container';
+            function initMascot() {
+                if (document.getElementById('mascot-container')) return; // Защита от дублей
                 
-                const bubble = document.createElement('div');
-                bubble.id = 'mascot-bubble';
-                bubble.textContent = 'нажми на меня';
-                
-                const img = document.createElement('img');
-                img.id = 'mascot-img';
-                img.src = 'Gemini_Generated_Image_hdls1shdls1shdls-Photoroom.png';
-                
-                const videoWrapper = document.createElement('div');
-                videoWrapper.id = 'mascot-video-wrapper';
-                
-                const video = document.createElement('video');
-                video.id = 'mascot-video';
-                video.src = 'video_2026-08-08_05-21-29.mp4';
-                video.disablePictureInPicture = true; 
-                video.controls = false;
-                
-                videoWrapper.appendChild(video);
-                container.appendChild(bubble);
-                container.appendChild(img);
-                container.appendChild(videoWrapper);
-                
-                // Вставляем маскот только после полной загрузки DOM
-                window.addEventListener('DOMContentLoaded', () => {
+                try {
+                    const container = document.createElement('div');
+                    container.id = 'mascot-container';
+                    
+                    const bubble = document.createElement('div');
+                    bubble.id = 'mascot-bubble';
+                    bubble.textContent = 'нажми на меня';
+                    
+                    const img = document.createElement('img');
+                    img.id = 'mascot-img';
+                    img.src = 'Gemini_Generated_Image_hdls1shdls1shdls-Photoroom.png';
+                    
+                    const videoWrapper = document.createElement('div');
+                    videoWrapper.id = 'mascot-video-wrapper';
+                    
+                    const video = document.createElement('video');
+                    video.id = 'mascot-video';
+                    video.src = 'video_2026-08-08_05-21-29.mp4';
+                    video.disablePictureInPicture = true; 
+                    video.controls = false;
+                    
+                    videoWrapper.appendChild(video);
+                    container.appendChild(bubble);
+                    container.appendChild(img);
+                    container.appendChild(videoWrapper);
+                    
                     document.body.appendChild(container);
-                    container.style.display = 'block'; // Показываем
+                    container.style.display = 'block'; 
                     
                     let x = Math.random() * (window.innerWidth - 150);
                     let y = Math.random() * (window.innerHeight - 150);
@@ -1402,17 +1257,23 @@
                     let isVideoPlaying = false;
 
                     function animateMascot() {
+                        // Используем строгие границы
+                        const screenW = document.documentElement.clientWidth || window.innerWidth;
+                        const screenH = document.documentElement.clientHeight || window.innerHeight;
+                        
                         const boundsW = isVideoPlaying ? 140 : 100;
                         const boundsH = isVideoPlaying ? 140 : 100;
 
                         x += vx;
                         y += vy;
                         
-                        if (x <= 0) { x = 0; vx *= -1; }
-                        if (x + boundsW >= window.innerWidth) { x = window.innerWidth - boundsW; vx *= -1; }
+                        // Защита от застревания в углах при ресайзе
+                        if (x <= 0) { x = 0; vx = Math.abs(vx); }
+                        if (x + boundsW >= screenW) { x = screenW - boundsW; vx = -Math.abs(vx); }
                         
-                        if (y <= 0) { y = 0; vy *= -1; }
-                        if (y + boundsH >= window.innerHeight - 5) { y = window.innerHeight - boundsH - 5; vy *= -1; }
+                        // Отступ 5px снизу для страховки от системных баров
+                        if (y <= 0) { y = 0; vy = Math.abs(vy); }
+                        if (y + boundsH >= screenH - 5) { y = screenH - boundsH - 5; vy = -Math.abs(vy); }
 
                         container.style.transform = `translate(${x}px, ${y}px)`;
                         requestAnimationFrame(animateMascot);
@@ -1435,12 +1296,10 @@
                         videoWrapper.style.display = 'block';
                         isVideoPlaying = true;
                         
-                        // Защита от багов браузера при автовоспроизведении
                         const playPromise = video.play();
                         if (playPromise !== undefined) {
                             playPromise.catch(e => {
                                 console.error("Auto-play prevented", e);
-                                // Возвращаем фото если видео заблокировано
                                 videoWrapper.style.display = 'none';
                                 img.style.display = 'block';
                                 isVideoPlaying = false;
@@ -1448,15 +1307,24 @@
                         }
                     });
 
+                    // После окончания видео - возвращаем картинку
                     video.addEventListener('ended', () => {
                         videoWrapper.style.display = 'none';
                         img.style.display = 'block';
                         isVideoPlaying = false;
-                        video.currentTime = 0; // Сбрасываем для повторного клика
+                        video.currentTime = 0; 
                     });
-                });
-            } catch(e) {
-                console.error("Mascot init failed", e);
+
+                } catch(e) {
+                    console.error("Mascot init failed", e);
+                }
+            }
+
+            // Надежный запуск маскота
+            if (document.readyState === 'loading') {
+                window.addEventListener('DOMContentLoaded', initMascot);
+            } else {
+                initMascot();
             }
         })();
     </script>
