@@ -1221,6 +1221,10 @@
             function initMascot() {
                 if (document.getElementById('mascot-container')) return; // Защита от дублей
                 
+                // Отключаем маскота, если мы находимся в режиме виджета OBS
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('widgetId')) return;
+                
                 try {
                     const container = document.createElement('div');
                     container.id = 'mascot-container';
