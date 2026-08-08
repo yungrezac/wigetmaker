@@ -157,7 +157,7 @@
         <img id="mascot-img" src="Gemini_Generated_Image_hdls1shdls1shdls-Photoroom.png" alt="Mascot" style="width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'"/>
         
         <!-- Видео -->
-        <video id="mascot-video" src="video_2026-08-08_05-21-29.mp4" playsinline style="display: none; width: 130px; height: 130px; border-radius: 50%; object-fit: cover; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 3px solid rgba(255,255,255,0.1);"></video>
+        <video id="mascot-video" src="video_2026-08-08_05-21-29.mp4" playsinline disablePictureInPicture controlsList="nodownload nofullscreen noremoteplayback" style="display: none; width: 130px; height: 130px; border-radius: 50%; object-fit: cover; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 3px solid rgba(255,255,255,0.1); pointer-events: none;"></video>
     </div>
 
     <div id="obs-view" class="w-screen h-screen bg-transparent overflow-hidden hidden absolute top-0 left-0">
@@ -1254,9 +1254,9 @@
 
         // Анимация перемещения и отскока
         function animateMascot() {
-            // Используем clientWidth/clientHeight для точного определения видимой области (без учета скроллбаров)
-            const maxX = Math.max(0, document.documentElement.clientWidth - mascotSize);
-            const maxY = Math.max(0, document.documentElement.clientHeight - mascotSize);
+            // Используем window.innerWidth/innerHeight для position: fixed
+            const maxX = Math.max(0, window.innerWidth - mascotSize);
+            const maxY = Math.max(0, window.innerHeight - mascotSize - 5); // -5px чтобы точно не цеплять нижний край
 
             mX += mDx;
             mY += mDy;
