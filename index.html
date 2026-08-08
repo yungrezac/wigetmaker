@@ -358,54 +358,58 @@
         </div>
     </div>
 
-    <!-- INDIVIDUAL GIFT SETTINGS MODAL -->
+    <!-- INDIVIDUAL GIFT SETTINGS MODAL WITH LIVE PREVIEW -->
     <div id="gift-edit-modal" class="modal px-4 z-[110]">
-        <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-md shadow-2xl relative">
-            <div class="flex justify-between items-center mb-5 border-b border-slate-800 pb-3">
-                <h2 class="text-xl font-bold text-white flex items-center gap-2"><i class="fas fa-sliders-h text-blue-500"></i> Настройка подарка</h2>
-                <button onclick="closeModal('gift-edit-modal')" class="text-slate-400 hover:text-white transition-colors"><i class="fas fa-times text-lg"></i></button>
-            </div>
+        <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-2xl shadow-2xl relative flex flex-col md:flex-row gap-6">
             
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Текст под подарком</label>
-                    <textarea id="edit-gift-text" rows="3" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-3 py-2 text-sm outline-none resize-none custom-scroll text-center" placeholder="Имя\n100₽"></textarea>
-                    <p class="text-[10px] text-slate-500 mt-1 text-center">Доступные переменные: {name} (имя подарка), {cost} (цена).<br>Используйте Enter для красивого переноса.</p>
+            <!-- Left: Controls -->
+            <div class="flex-1 space-y-5">
+                <div class="flex justify-between items-center mb-2 border-b border-slate-800 pb-2">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2"><i class="fas fa-sliders-h text-blue-500"></i> Настройка подарка</h2>
+                    <button onclick="closeModal('gift-edit-modal')" class="text-slate-400 hover:text-white transition-colors md:hidden"><i class="fas fa-times text-lg"></i></button>
                 </div>
                 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Размер шрифта (px)</label>
-                        <input type="number" id="edit-gift-size" min="10" max="150" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-3 py-2 text-sm outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Сдвиг текста (px)</label>
-                        <input type="number" id="edit-gift-offset" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-3 py-2 text-sm outline-none" title="Отрицательное значение поднимает текст выше, положительное - опускает ниже">
-                    </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-2">Текст под подарком</label>
+                    <textarea id="edit-gift-text" rows="2" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-3 py-2 text-sm outline-none resize-none custom-scroll text-center" placeholder="Имя\n100₽" oninput="updateModalPreview()"></textarea>
+                    <p class="text-[10px] text-slate-500 mt-1 text-center">Доступные переменные: {name}, {cost}</p>
                 </div>
-
-                <div class="bg-indigo-900/20 border border-indigo-500/30 rounded-xl p-4 mt-2">
-                    <label class="flex items-center gap-2 cursor-pointer mb-3">
-                        <input type="checkbox" id="edit-gift-outline-enable" class="w-4 h-4 rounded text-blue-600 bg-slate-950 border-slate-700 focus:ring-blue-500" onchange="document.getElementById('outline-settings-group').style.opacity = this.checked ? '1' : '0.5'">
-                        <span class="text-sm font-semibold text-indigo-300">Включить общую красивую обводку</span>
-                    </label>
-                    <p class="text-[10px] text-slate-400 mb-3 leading-tight">Объединяет картинку и текст в единый визуальный стикер.</p>
+                
+                <div class="bg-slate-800/30 p-4 rounded-xl border border-slate-700/50 space-y-4">
+                    <div>
+                        <div class="flex justify-between items-end mb-2">
+                            <label class="block text-xs font-semibold text-slate-400">Размер шрифта</label>
+                            <span id="val-gift-size" class="text-xs font-mono text-blue-400 font-bold bg-blue-900/30 px-2 py-0.5 rounded">24px</span>
+                        </div>
+                        <input type="range" id="edit-gift-size" min="10" max="150" value="24" class="w-full accent-blue-500" oninput="document.getElementById('val-gift-size').textContent = this.value + 'px'; updateModalPreview()">
+                    </div>
                     
-                    <div id="outline-settings-group" class="grid grid-cols-2 gap-4 transition-opacity">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1">Цвет контура</label>
-                            <input type="color" id="edit-gift-outline-color" class="h-8 w-full cursor-pointer bg-slate-950 border border-slate-700 rounded outline-none p-0.5">
+                    <div>
+                        <div class="flex justify-between items-end mb-2">
+                            <label class="block text-xs font-semibold text-slate-400">Сдвиг текста (Вверх/Вниз)</label>
+                            <span id="val-gift-offset" class="text-xs font-mono text-blue-400 font-bold bg-blue-900/30 px-2 py-0.5 rounded">0px</span>
                         </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-400 mb-1">Толщина контура</label>
-                            <input type="number" id="edit-gift-outline-width" min="1" max="20" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-lg px-3 py-1.5 text-sm outline-none">
-                        </div>
+                        <input type="range" id="edit-gift-offset" min="-150" max="150" value="0" class="w-full accent-blue-500" oninput="document.getElementById('val-gift-offset').textContent = this.value + 'px'; updateModalPreview()">
                     </div>
                 </div>
 
-                <div class="flex gap-3 mt-6 pt-4 border-t border-slate-800">
+                <div class="flex gap-3 mt-4 pt-4 border-t border-slate-800">
                     <button onclick="closeModal('gift-edit-modal')" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-2.5 rounded-xl font-medium transition-all">Отмена</button>
                     <button onclick="saveGiftEdit()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl font-semibold shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all">Сохранить</button>
+                </div>
+            </div>
+
+            <!-- Right: Live Preview -->
+            <div class="w-full md:w-64 bg-slate-950 border border-slate-800 rounded-xl relative overflow-hidden flex flex-col checkerboard-bg shadow-inner">
+                <div class="absolute top-2 left-2 right-2 flex justify-between items-center z-10 md:hidden">
+                    <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider bg-black/60 backdrop-blur-sm px-2 py-1 rounded">Живое превью</span>
+                </div>
+                <div class="hidden md:block absolute top-2 left-2 text-[10px] font-bold text-slate-300 uppercase tracking-wider bg-black/60 backdrop-blur-sm px-2 py-1 rounded z-10 border border-white/10">Живое превью</div>
+                
+                <button onclick="closeModal('gift-edit-modal')" class="hidden md:block absolute top-2 right-2 text-slate-400 hover:text-white hover:bg-red-500/20 transition-colors z-10 bg-black/50 border border-white/10 rounded-lg w-7 h-7 flex items-center justify-center"><i class="fas fa-times"></i></button>
+
+                <div id="modal-gift-preview-container" class="flex-1 flex items-center justify-center min-h-[220px] w-full p-4 relative overflow-hidden">
+                    <!-- Live Preview Injected Here -->
                 </div>
             </div>
         </div>
@@ -442,7 +446,8 @@
         const inputClass = "w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 text-white rounded-lg px-3 py-2 text-sm outline-none transition-all";
         const labelClass = "block text-xs font-medium text-slate-400 mb-1.5";
 
-        const GOOGLE_FONTS = ["Inter", "Roboto", "Open Sans", "Montserrat", "Lato", "Poppins", "Oswald", "Source Sans Pro", "Raleway", "PT Sans", "Merriweather", "Nunito", "Concert One", "Bebas Neue", "Lobster", "Pacifico", "Caveat", "Amatic SC", "Permanent Marker", "Righteous", "Alfa Slab One", "Russo One", "Jost", "Playfair Display", "Cinzel", "Anton", "Bungee", "Dancing Script", "Exo 2", "Teko"];
+        // Красивые кириллические шрифты от Google
+        const GOOGLE_FONTS = ["Inter", "Roboto", "Montserrat", "Open Sans", "Oswald", "Raleway", "Nunito", "Playfair Display", "Caveat", "Comfortaa", "Jura", "Lobster", "Pattaya", "Russo One", "Underdog", "Amatic SC", "Marck Script", "Rubik", "Lora"];
 
         var DEFAULT_CONFIGS = {
             'image-marquee': {
@@ -734,9 +739,9 @@
                         </div>
                         <div>
                             <label class="${labelClass}">Цвет текста</label>
-                            <div class="flex gap-2 bg-slate-950/50 p-1 rounded-lg border border-slate-700">
-                                <input type="color" id="setting-color" value="${c.color || '#ffffff'}" class="h-8 w-12 cursor-pointer bg-transparent border-0 rounded" oninput="debouncePreview()">
-                                <input type="text" value="${c.color || '#ffffff'}" class="flex-1 bg-transparent text-sm text-white outline-none px-2" readonly>
+                            <div class="flex gap-2 bg-slate-950/50 p-1 rounded-lg border border-slate-700 focus-within:border-blue-500 transition-colors">
+                                <input type="color" id="setting-color" value="${c.color || '#ffffff'}" class="h-8 w-12 cursor-pointer bg-transparent border-0 rounded" oninput="document.getElementById('setting-color-text').value = this.value; debouncePreview()">
+                                <input type="text" id="setting-color-text" value="${c.color || '#ffffff'}" class="flex-1 bg-transparent text-sm text-white outline-none px-1" oninput="document.getElementById('setting-color').value = this.value; debouncePreview()">
                             </div>
                         </div>
                     </div>
@@ -866,12 +871,9 @@
             const newInstance = {
                 instanceId: Date.now().toString() + Math.random().toString(36).substr(2, 5),
                 gift_id: giftId,
-                customText: '{name}\n{cost}₽', // Красивый шаблон с переносом по умолчанию
+                customText: '{name}\n{cost}₽',
                 fontSize: currentWidget.config.fontSize || 24,
-                verticalOffset: 0,
-                groupOutline: false,
-                groupOutlineColor: '#ffffff',
-                groupOutlineWidth: 3
+                verticalOffset: 0
             };
             
             row.gifts.push(newInstance);
@@ -887,6 +889,8 @@
             updatePreview(); saveWidget();
         }
 
+        let tempGiftPreviewData = null; // Для живого превью внутри модалки
+
         function openGiftEditModal(rowIndex, instanceId) {
             currentEditingRowIndex = rowIndex;
             currentEditingGiftInstanceId = instanceId;
@@ -894,18 +898,40 @@
             const giftInstance = currentWidget.config.rows[rowIndex].gifts.find(g => g.instanceId === instanceId);
             if(!giftInstance) return;
 
-            document.getElementById('edit-gift-text').value = giftInstance.customText || '';
-            document.getElementById('edit-gift-size').value = giftInstance.fontSize || currentWidget.config.fontSize || 24;
-            document.getElementById('edit-gift-offset').value = giftInstance.verticalOffset || 0;
-            
-            const outlineEnable = document.getElementById('edit-gift-outline-enable');
-            outlineEnable.checked = giftInstance.groupOutline || false;
-            document.getElementById('outline-settings-group').style.opacity = outlineEnable.checked ? '1' : '0.5';
-            
-            document.getElementById('edit-gift-outline-color').value = giftInstance.groupOutlineColor || '#ffffff';
-            document.getElementById('edit-gift-outline-width').value = giftInstance.groupOutlineWidth || 3;
+            // Сохраняем данные для рендеринга превью
+            tempGiftPreviewData = {
+                gData: giftLibrary.find(g => g.gift_id === giftInstance.gift_id),
+                c: currentWidget.config
+            };
 
+            document.getElementById('edit-gift-text').value = giftInstance.customText || '';
+            
+            const sizeInput = document.getElementById('edit-gift-size');
+            sizeInput.value = giftInstance.fontSize || currentWidget.config.fontSize || 24;
+            document.getElementById('val-gift-size').textContent = sizeInput.value + 'px';
+
+            const offsetInput = document.getElementById('edit-gift-offset');
+            offsetInput.value = giftInstance.verticalOffset || 0;
+            document.getElementById('val-gift-offset').textContent = offsetInput.value + 'px';
+
+            updateModalPreview();
             document.getElementById('gift-edit-modal').classList.add('active');
+        }
+
+        function updateModalPreview() {
+            if(!tempGiftPreviewData) return;
+            const container = document.getElementById('modal-gift-preview-container');
+            container.innerHTML = '';
+            
+            // Собираем фейковый инстанс из текущих значений ползунков
+            const dummyInstance = {
+                customText: document.getElementById('edit-gift-text').value,
+                fontSize: parseInt(document.getElementById('edit-gift-size').value) || 24,
+                verticalOffset: parseInt(document.getElementById('edit-gift-offset').value) || 0
+            };
+
+            const previewEl = buildGiftPreviewElement(tempGiftPreviewData.gData, tempGiftPreviewData.c, dummyInstance);
+            container.appendChild(previewEl);
         }
 
         function saveGiftEdit() {
@@ -917,9 +943,6 @@
                 giftInstance.customText = document.getElementById('edit-gift-text').value;
                 giftInstance.fontSize = parseInt(document.getElementById('edit-gift-size').value) || 24;
                 giftInstance.verticalOffset = parseInt(document.getElementById('edit-gift-offset').value) || 0;
-                giftInstance.groupOutline = document.getElementById('edit-gift-outline-enable').checked;
-                giftInstance.groupOutlineColor = document.getElementById('edit-gift-outline-color').value;
-                giftInstance.groupOutlineWidth = parseInt(document.getElementById('edit-gift-outline-width').value) || 3;
             }
 
             renderRowItems(`row-items-${currentEditingRowIndex}`, row, currentEditingRowIndex);
@@ -1002,7 +1025,8 @@
             const id = 'font-' + fontName.replace(/\s+/g, '-');
             if (!document.getElementById(id)) {
                 const link = document.createElement('link'); link.id = id; link.rel = 'stylesheet';
-                link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/\s+/g, '+')}:wght@400;700;800;900&display=swap`;
+                // Подключаем шрифт с поддержкой кириллицы (Cyrillic)
+                link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/\s+/g, '+')}:wght@400;700;800;900&subset=cyrillic,latin&display=swap`;
                 document.head.appendChild(link); loadedFonts.add(fontName);
             }
         }
@@ -1015,28 +1039,11 @@
             item.style.alignItems = 'center';
             item.style.justifyContent = 'center';
             item.style.gap = '2px';
-            
-            // Если включена групповая обводка — рисуем красивый плотный контур вокруг всего блока
-            if (giftInstance && giftInstance.groupOutline) {
-                const w = giftInstance.groupOutlineWidth || 3;
-                const c = giftInstance.groupOutlineColor || '#ffffff';
-                item.style.filter = `
-                    drop-shadow(${w}px 0px 0px ${c}) 
-                    drop-shadow(-${w}px 0px 0px ${c}) 
-                    drop-shadow(0px ${w}px 0px ${c}) 
-                    drop-shadow(0px -${w}px 0px ${c})
-                    drop-shadow(${w}px ${w}px 0px ${c})
-                    drop-shadow(-${w}px -${w}px 0px ${c})
-                    drop-shadow(${w}px -${w}px 0px ${c})
-                    drop-shadow(-${w}px ${w}px 0px ${c})
-                `;
-            }
 
             const img = document.createElement('img');
             img.src = giftData.icon;
             img.style.height = `${globalConfig.imageHeight || 150}px`;
-            // Убираем отдельную тень у картинки, если включен общий контур
-            img.className = (giftInstance && giftInstance.groupOutline) ? "object-contain" : "object-contain drop-shadow-xl";
+            img.className = "object-contain drop-shadow-xl"; // Отдельная тень только для картинки
             
             const text = document.createElement('div');
             
@@ -1046,23 +1053,35 @@
             
             text.style.fontFamily = `"${globalConfig.fontFamily || 'Inter'}", sans-serif`;
             text.style.fontSize = `${(giftInstance && giftInstance.fontSize) ? giftInstance.fontSize : (globalConfig.fontSize || 24)}px`;
-            text.style.color = globalConfig.color || '#fff';
+            text.style.color = globalConfig.color || '#ffffff';
             text.style.fontWeight = '800'; 
             text.style.textAlign = 'center';
-            text.style.lineHeight = '1.1'; // Плотно прижимаем строки текста друг к другу
+            text.style.lineHeight = '1.1'; 
             text.style.zIndex = '2';
-            text.style.marginTop = '-5px'; // Приближаем текст к картинке
+            text.style.marginTop = '-5px';
             
             // Индивидуальный сдвиг текста
             if (giftInstance && giftInstance.verticalOffset) {
                 text.style.transform = `translateY(${giftInstance.verticalOffset}px)`;
             }
 
-            // Если общая обводка не включена, добавим тексту небольшую собственную черную обводку, чтобы он читался
-            if (!giftInstance || !giftInstance.groupOutline) {
-                text.style.webkitTextStroke = `1px rgba(0,0,0,0.8)`;
-                text.style.textShadow = `2px 2px 4px rgba(0,0,0,0.8)`;
-            }
+            // Создаем ИДЕАЛЬНУЮ внешнюю обводку текста с помощью множественных теней 
+            // Это предотвращает съедание букв внутрь, как это делает webkit-text-stroke
+            const strokeColor = 'rgba(0,0,0,0.85)';
+            const w = 2; // Толщина обводки 2px
+            text.style.textShadow = `
+                -${w}px -${w}px 0 ${strokeColor},
+                 0   -${w}px 0 ${strokeColor},
+                 ${w}px -${w}px 0 ${strokeColor},
+                 ${w}px  0   0 ${strokeColor},
+                 ${w}px  ${w}px 0 ${strokeColor},
+                 0    ${w}px 0 ${strokeColor},
+                -${w}px  ${w}px 0 ${strokeColor},
+                -${w}px  0   0 ${strokeColor},
+                3px 4px 6px rgba(0,0,0,0.9)
+            `;
+            // Убираем старый кривой строк, если он был
+            text.style.webkitTextStroke = 'none';
             
             item.appendChild(img);
             if (tpl.trim() !== '') item.appendChild(text);
