@@ -92,27 +92,14 @@
             z-index: 0;
         }
 
-        /* Transition Classes */
         .trans-fade { transition: opacity 1s ease-in-out; }
         .trans-fade.active { opacity: 1; z-index: 1; }
-        
         .trans-slide-left { transform: translateX(100%); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .trans-slide-left.active { opacity: 1; transform: translateX(0); z-index: 1; }
         .trans-slide-right { transform: translateX(-100%); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .trans-slide-right.active { opacity: 1; transform: translateX(0); z-index: 1; }
-        
-        .trans-slide-up { transform: translateY(100%); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); }
-        .trans-slide-up.active { opacity: 1; transform: translateY(0); z-index: 1; }
-        .trans-slide-down { transform: translateY(-100%); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); }
-        .trans-slide-down.active { opacity: 1; transform: translateY(0); z-index: 1; }
-
         .trans-zoom-in { transform: scale(0.5); opacity: 0; transition: all 1.2s ease; }
         .trans-zoom-in.active { opacity: 1; transform: scale(1); z-index: 1; }
-        .trans-zoom-out { transform: scale(1.5); opacity: 0; transition: all 1.2s ease; }
-        .trans-zoom-out.active { opacity: 1; transform: scale(1); z-index: 1; }
-
-        .trans-flip { transform: rotateY(90deg); opacity: 0; transition: all 0.8s ease-in; perspective: 1000px; }
-        .trans-flip.active { opacity: 1; transform: rotateY(0deg); z-index: 1; transition-timing-function: ease-out;}
 
         .modal {
             display: none;
@@ -141,10 +128,12 @@
         /* Mascot Styles */
         #mascot-container {
             position: fixed;
-            z-index: 9999;
+            z-index: 999999;
             cursor: pointer;
             will-change: transform;
             user-select: none;
+            /* Прячем до инициализации */
+            display: none;
         }
         #mascot-bubble {
             position: absolute;
@@ -194,7 +183,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            pointer-events: none; /* Предотвращает появление нативных кнопок браузера (PiP) */
+            pointer-events: none;
         }
         #mascot-container:hover #mascot-img {
             transform: scale(1.1) rotate(5deg);
@@ -289,15 +278,15 @@
         </main>
     </div>
 
+    <!-- Modals -->
+
     <!-- Auth Modal -->
     <div id="auth-modal" class="modal px-4">
         <div class="bg-slate-900 border border-slate-700 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform transition-all relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
             <div class="text-center mb-6 mt-2">
                 <div class="w-16 h-16 bg-blue-500/10 text-blue-500 rounded-2xl mx-auto flex items-center justify-center mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]">
-                        <path fill-rule="evenodd" d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z" clip-rule="evenodd" />
-                    </svg>
+                    <i class="fas fa-layer-group text-3xl"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-white">IMWIGET</h2>
                 <p class="text-slate-400 text-sm mt-1">Авторизуйтесь для управления виджетами</p>
@@ -313,32 +302,32 @@
             <div id="form-login" class="space-y-5 block">
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
-                    <input type="email" id="login-email" placeholder="your@email.com" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white rounded-xl px-4 py-3 outline-none transition-all">
+                    <input type="email" id="login-email" placeholder="your@email.com" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-4 py-3 outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1.5">Пароль</label>
-                    <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white rounded-xl px-4 py-3 outline-none transition-all">
+                    <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-4 py-3 outline-none">
                 </div>
                 <div class="pt-2">
-                    <button onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-semibold transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]">Войти</button>
+                    <button onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-semibold shadow-[0_0_15px_rgba(59,130,246,0.3)]">Войти</button>
                 </div>
             </div>
 
             <div id="form-signup" class="space-y-4 hidden">
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
-                    <input type="email" id="signup-email" placeholder="your@email.com" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-4 py-2.5 outline-none transition-all">
+                    <input type="email" id="signup-email" placeholder="your@email.com" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-4 py-2.5 outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1.5">Пароль</label>
-                    <input type="password" id="signup-password" placeholder="Мин. 6 символов" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-4 py-2.5 outline-none transition-all">
+                    <input type="password" id="signup-password" placeholder="Мин. 6 символов" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-4 py-2.5 outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1.5">Повторите пароль</label>
-                    <input type="password" id="signup-password-confirm" placeholder="••••••••" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-4 py-2.5 outline-none transition-all">
+                    <input type="password" id="signup-password-confirm" placeholder="••••••••" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-4 py-2.5 outline-none">
                 </div>
                 <div class="pt-2">
-                    <button onclick="handleSignup()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-semibold transition-all shadow-[0_0_15px_rgba(79,70,229,0.3)]">Создать аккаунт</button>
+                    <button onclick="handleSignup()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-semibold">Создать аккаунт</button>
                 </div>
             </div>
         </div>
@@ -351,20 +340,20 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1.5">Название</label>
-                    <input type="text" id="new-widget-name" placeholder="Например: Донаты" maxlength="30" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-4 py-2.5 outline-none transition-all">
+                    <input type="text" id="new-widget-name" placeholder="Например: Донаты" maxlength="30" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-4 py-2.5 outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1.5">Тип виджета</label>
-                    <select id="new-widget-type" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-4 py-2.5 outline-none transition-all appearance-none cursor-pointer">
+                    <select id="new-widget-type" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-4 py-2.5 outline-none appearance-none cursor-pointer">
                         <option value="marquee">Бегущая строка (Текст)</option>
                         <option value="image-marquee">Бегущая строка (Фото + Подарки)</option>
-                        <option value="slideshow">Слайдшоу (Одна зона)</option>
-                        <option value="multi-slideshow">Многострочное Слайдшоу (Фото + Подарки)</option>
+                        <option value="slideshow">Слайдшоу (Фото)</option>
+                        <option value="multi-slideshow">Слайдшоу (Фото + Подарки)</option>
                     </select>
                 </div>
                 <div class="flex gap-3 mt-8">
-                    <button onclick="closeModal('create-modal')" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-2.5 rounded-xl transition-all font-medium">Отмена</button>
-                    <button onclick="createWidget()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl transition-all font-semibold shadow-lg shadow-blue-500/20">Создать</button>
+                    <button onclick="closeModal('create-modal')" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-2.5 rounded-xl font-medium">Отмена</button>
+                    <button onclick="createWidget()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-500/20">Создать</button>
                 </div>
             </div>
         </div>
@@ -374,18 +363,65 @@
     <div id="gift-selector-modal" class="modal px-4 z-[100]">
         <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-white">Выбор подарков</h2>
-                <div class="flex gap-2">
-                    <button onclick="toggleAllGiftsInSelector()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-sm transition-colors">Выбрать все</button>
-                    <button onclick="closeModal('gift-selector-modal')" class="text-slate-400 hover:text-white transition-colors"><i class="fas fa-times text-xl"></i></button>
-                </div>
+                <h2 class="text-xl font-bold text-white">Выбор подарка</h2>
+                <button onclick="closeModal('gift-selector-modal')" class="text-slate-400 hover:text-white transition-colors"><i class="fas fa-times text-xl"></i></button>
             </div>
+            <p class="text-sm text-slate-400 mb-4">Нажмите на подарок, чтобы добавить его в текущую строку.</p>
             <div id="gift-selector-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 overflow-y-auto custom-scroll flex-1 pr-2 pb-2">
                 <!-- Gifts injected here -->
             </div>
-            <div class="mt-4 pt-4 border-t border-slate-800 flex justify-end gap-3">
-                <button onclick="closeModal('gift-selector-modal')" class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2.5 rounded-xl transition-all font-medium">Отмена</button>
-                <button onclick="saveSelectedGifts()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl transition-all font-semibold shadow-lg shadow-blue-500/20">Сохранить выбор</button>
+        </div>
+    </div>
+
+    <!-- INDIVIDUAL GIFT SETTINGS MODAL -->
+    <div id="gift-edit-modal" class="modal px-4 z-[110]">
+        <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-md shadow-2xl relative">
+            <div class="flex justify-between items-center mb-5 border-b border-slate-800 pb-3">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2"><i class="fas fa-sliders-h text-blue-500"></i> Настройка подарка</h2>
+                <button onclick="closeModal('gift-edit-modal')" class="text-slate-400 hover:text-white transition-colors"><i class="fas fa-times text-lg"></i></button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Уникальный текст (поддерживает перенос строки)</label>
+                    <textarea id="edit-gift-text" rows="3" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-3 py-2 text-sm outline-none resize-none custom-scroll" placeholder="Например: Спасибо за поддержку!\nОт: Имя"></textarea>
+                    <p class="text-[10px] text-slate-500 mt-1">Доступные переменные: {name} - имя подарка, {cost} - цена</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Размер шрифта (px)</label>
+                        <input type="number" id="edit-gift-size" min="10" max="150" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-3 py-2 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Сдвиг надписи (px)</label>
+                        <input type="number" id="edit-gift-offset" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-xl px-3 py-2 text-sm outline-none" title="Отрицательное значение поднимает текст выше, положительное - опускает ниже">
+                    </div>
+                </div>
+
+                <div class="bg-indigo-900/20 border border-indigo-500/30 rounded-xl p-4 mt-2">
+                    <label class="flex items-center gap-2 cursor-pointer mb-3">
+                        <input type="checkbox" id="edit-gift-outline-enable" class="w-4 h-4 rounded text-blue-600 bg-slate-950 border-slate-700 focus:ring-blue-500" onchange="document.getElementById('outline-settings-group').style.opacity = this.checked ? '1' : '0.5'">
+                        <span class="text-sm font-semibold text-indigo-300">Включить общую контурную обводку</span>
+                    </label>
+                    <p class="text-[10px] text-slate-400 mb-3 leading-tight">Создает красивый цельный контур (тень), обхватывающий и картинку, и текст одновременно.</p>
+                    
+                    <div id="outline-settings-group" class="grid grid-cols-2 gap-4 transition-opacity">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Цвет контура</label>
+                            <input type="color" id="edit-gift-outline-color" class="h-8 w-full cursor-pointer bg-slate-950 border border-slate-700 rounded outline-none p-0.5">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Ширина контура</label>
+                            <input type="number" id="edit-gift-outline-width" min="1" max="20" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-lg px-3 py-1.5 text-sm outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-6 pt-4 border-t border-slate-800">
+                    <button onclick="closeModal('gift-edit-modal')" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-2.5 rounded-xl font-medium transition-all">Отмена</button>
+                    <button onclick="saveGiftEdit()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl font-semibold shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all">Сохранить</button>
+                </div>
             </div>
         </div>
     </div>
@@ -401,93 +437,6 @@
     </div>
 
     <script>
-        // --- MASCOT LOGIC ---
-        function initMascot() {
-            const container = document.createElement('div');
-            container.id = 'mascot-container';
-            
-            const bubble = document.createElement('div');
-            bubble.id = 'mascot-bubble';
-            bubble.textContent = 'нажми на меня';
-            
-            const img = document.createElement('img');
-            img.id = 'mascot-img';
-            img.src = 'Gemini_Generated_Image_hdls1shdls1shdls-Photoroom.png';
-            img.onerror = () => { img.style.display = 'none'; }; // Hide if missing
-            
-            const videoWrapper = document.createElement('div');
-            videoWrapper.id = 'mascot-video-wrapper';
-            
-            const video = document.createElement('video');
-            video.id = 'mascot-video';
-            video.src = 'video_2026-08-08_05-21-29.mp4';
-            video.disablePictureInPicture = true; // Blocks PiP
-            video.controls = false;
-            
-            videoWrapper.appendChild(video);
-            container.appendChild(bubble);
-            container.appendChild(img);
-            container.appendChild(videoWrapper);
-            document.body.appendChild(container);
-
-            let x = Math.random() * (window.innerWidth - 150);
-            let y = Math.random() * (window.innerHeight - 150);
-            let vx = 1.5 * (Math.random() > 0.5 ? 1 : -1);
-            let vy = 1.5 * (Math.random() > 0.5 ? 1 : -1);
-            let isVideoPlaying = false;
-
-            function animateMascot() {
-                if(!document.getElementById('mascot-container')) return;
-                
-                const boundsW = isVideoPlaying ? 140 : 100;
-                const boundsH = isVideoPlaying ? 140 : 100;
-
-                x += vx;
-                y += vy;
-                
-                // Safe bounce checks using innerHeight/innerWidth to prevent going off-screen
-                if (x <= 0) { x = 0; vx *= -1; }
-                if (x + boundsW >= window.innerWidth) { x = window.innerWidth - boundsW; vx *= -1; }
-                
-                if (y <= 0) { y = 0; vy *= -1; }
-                if (y + boundsH >= window.innerHeight - 5) { y = window.innerHeight - boundsH - 5; vy *= -1; }
-
-                container.style.transform = `translate(${x}px, ${y}px)`;
-                requestAnimationFrame(animateMascot);
-            }
-            animateMascot();
-
-            // Random bubble logic
-            setInterval(() => {
-                if(isVideoPlaying) return; // Don't show text if video is playing
-                if (Math.random() > 0.6) {
-                    bubble.style.opacity = '1';
-                    setTimeout(() => { bubble.style.opacity = '0'; }, 3000);
-                }
-            }, 5000);
-
-            // Click interaction
-            container.addEventListener('click', () => {
-                if (isVideoPlaying) return;
-                
-                bubble.style.opacity = '0';
-                img.style.display = 'none';
-                videoWrapper.style.display = 'block';
-                isVideoPlaying = true;
-                
-                video.play().catch(e => console.error("Auto-play prevented", e));
-            });
-
-            video.addEventListener('ended', () => {
-                videoWrapper.style.display = 'none';
-                img.style.display = 'block';
-                isVideoPlaying = false;
-            });
-        }
-        // Run mascot on load
-        window.addEventListener('load', initMascot);
-        // --------------------
-
         var SUPABASE_URL = 'https://lqjagftaeejdufwwvjwd.supabase.co';
         var SUPABASE_KEY = 'sb_publishable_6-9IBhMX9CMVbIackZAJ9g_UUk5FDqx';
         var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -495,10 +444,11 @@
         var currentUser = null;
         var widgets = [];
         var currentWidget = null;
-        var giftLibrary = []; // Array of all gifts from DB
-        var currentEditingRowIndex = null; // for gift modal
-        var tempSelectedGifts = []; // for gift modal
+        var giftLibrary = []; 
         
+        var currentEditingRowIndex = null; 
+        var currentEditingGiftInstanceId = null;
+
         var previewInterval = null;
         var previewIntervals = []; 
         var debounceTimer = null;
@@ -507,13 +457,7 @@
         const inputClass = "w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 text-white rounded-lg px-3 py-2 text-sm outline-none transition-all";
         const labelClass = "block text-xs font-medium text-slate-400 mb-1.5";
 
-        const GOOGLE_FONTS = [
-            "Inter", "Roboto", "Open Sans", "Montserrat", "Lato", "Poppins", "Oswald", 
-            "Source Sans Pro", "Raleway", "PT Sans", "Merriweather", "Nunito", "Concert One", 
-            "Bebas Neue", "Lobster", "Pacifico", "Caveat", "Amatic SC", "Permanent Marker", 
-            "Righteous", "Alfa Slab One", "Russo One", "Jost", "Playfair Display", "Cinzel", 
-            "Anton", "Bungee", "Dancing Script", "Exo 2", "Teko"
-        ];
+        const GOOGLE_FONTS = ["Inter", "Roboto", "Open Sans", "Montserrat", "Lato", "Poppins", "Oswald", "Source Sans Pro", "Raleway", "PT Sans", "Merriweather", "Nunito", "Concert One", "Bebas Neue", "Lobster", "Pacifico", "Caveat", "Amatic SC", "Permanent Marker", "Righteous", "Alfa Slab One", "Russo One", "Jost", "Playfair Display", "Cinzel", "Anton", "Bungee", "Dancing Script", "Exo 2", "Teko"];
 
         var DEFAULT_CONFIGS = {
             marquee: {
@@ -522,7 +466,6 @@
             },
             'image-marquee': {
                 gap: 20, imageHeight: 120,
-                // Gift Text settings
                 textTemplate: '{name} - {cost}₽', textPosition: 'bottom', fontFamily: 'Inter',
                 fontSize: 24, color: '#ffffff', effect: 'outline', outlineColor: '#000000', outlineWidth: 2,
                 rows: [{ id: Date.now().toString(), speed: 15, direction: 'left', images: [], gifts: [] }]
@@ -532,7 +475,6 @@
             },
             'multi-slideshow': {
                 delay: 5, transition: 'fade', objectFit: 'contain', rowHeight: 200, gap: 20, imageHeight: 150,
-                // Gift Text settings
                 textTemplate: '{name} - {cost}₽', textPosition: 'bottom', fontFamily: 'Inter',
                 fontSize: 24, color: '#ffffff', effect: 'outline', outlineColor: '#000000', outlineWidth: 2,
                 rows: [{ id: Date.now().toString(), images: [], gifts: [] }]
@@ -543,7 +485,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const obsWidgetId = urlParams.get('widgetId');
 
-            await loadGiftLibrary(); // Load gifts globally
+            await loadGiftLibrary();
 
             if (obsWidgetId) {
                 document.body.classList.add('is-obs-mode');
@@ -609,10 +551,8 @@
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             if(!email || !password) return showError("Введите email и пароль");
-            
             const btn = document.querySelector('#form-login button');
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
-            
             const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) { showError("Ошибка входа: " + error.message); btn.innerHTML = 'Войти'; }
         }
@@ -666,6 +606,21 @@
             const { data, error } = await supabase.from('p_widgets').select('*').order('created_at', { ascending: false });
             if (error) return listEl.innerHTML = '<div class="text-red-400 text-sm p-4 text-center">Ошибка загрузки. Проверьте подключение.</div>';
             widgets = data || [];
+            
+            // Миграция старых строковых подарков в объекты (для обратной совместимости)
+            widgets.forEach(w => {
+                if(w.config && w.config.rows) {
+                    w.config.rows.forEach(r => {
+                        if(r.gifts) {
+                            r.gifts = r.gifts.map(g => {
+                                if(typeof g === 'string') return { instanceId: Date.now()+Math.random().toString(36).substring(2), gift_id: g };
+                                return g;
+                            });
+                        }
+                    });
+                }
+            });
+
             renderWidgetList();
         }
 
@@ -734,7 +689,6 @@
         async function saveWidget() {
             if (!currentWidget) return;
             syncFormToConfig();
-
             const { error } = await supabase.from('p_widgets').update({ config: currentWidget.config, updated_at: new Date().toISOString() }).eq('id', currentWidget.id);
             if (error) return alertCustom("Ошибка", "Не удалось сохранить");
             
@@ -827,15 +781,15 @@
                     ${extraInputs}
                     <div class="col-span-1 md:col-span-2 mt-4 bg-slate-800/30 p-4 rounded-xl border border-slate-700/50">
                         <div class="flex justify-between items-center mb-3">
-                            <h4 class="text-sm font-semibold text-white"><i class="fas fa-gift mr-2 text-slate-400"></i>Глобальные настройки текста подарков</h4>
+                            <h4 class="text-sm font-semibold text-white"><i class="fas fa-gift mr-2 text-slate-400"></i>Шаблон текста подарков (по умолчанию)</h4>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div class="col-span-2"><label class="${labelClass}">Шаблон ( {name} и {cost} )</label><input type="text" id="setting-template" value="${escapeHtml(c.textTemplate || '{name} - {cost}₽')}" oninput="debouncePreview()" class="${inputClass}"></div>
+                            <div class="col-span-2"><label class="${labelClass}">Базовый шаблон ( {name} и {cost} )</label><input type="text" id="setting-template" value="${escapeHtml(c.textTemplate || '{name} - {cost}₽')}" oninput="debouncePreview()" class="${inputClass}"></div>
                             <div class="col-span-2"><label class="${labelClass}">Позиция</label><select id="setting-text-pos" onchange="debouncePreview()" class="${inputClass}"><option value="bottom" ${c.textPosition==='bottom'?'selected':''}>Под картинкой</option><option value="top" ${c.textPosition==='top'?'selected':''}>Над картинкой</option><option value="center" ${c.textPosition==='center'?'selected':''}>По центру (поверх)</option></select></div>
                             <div class="col-span-2"><label class="${labelClass}">Шрифт</label><select id="setting-font" onchange="debouncePreview()" class="${inputClass}"><option value="Inter" ${!c.fontFamily||c.fontFamily==='Inter'?'selected':''}>Inter</option>${fontsOptions}</select></div>
                             <div><label class="${labelClass}">Размер</label><input type="number" id="setting-size" value="${c.fontSize || 24}" min="10" max="100" oninput="debouncePreview()" class="${inputClass}"></div>
                             <div><label class="${labelClass}">Цвет текста</label><input type="color" id="setting-color" value="${c.color || '#ffffff'}" class="h-9 w-full rounded cursor-pointer border-0 bg-slate-900" oninput="debouncePreview()"></div>
-                            <div class="col-span-2"><label class="${labelClass}">Эффект</label><select id="setting-effect" onchange="debouncePreview()" class="${inputClass}"><option value="none" ${c.effect==='none'?'selected':''}>Без эффекта</option><option value="glow" ${c.effect==='glow'?'selected':''}>Свечение</option><option value="shadow" ${c.effect==='shadow'?'selected':''}>Тень</option><option value="outline" ${c.effect==='outline'?'selected':''}>Обводка</option><option value="glow-outline" ${c.effect==='glow-outline'?'selected':''}>Обводка + Свечение</option></select></div>
+                            <div class="col-span-2"><label class="${labelClass}">Эффект (только текст)</label><select id="setting-effect" onchange="debouncePreview()" class="${inputClass}"><option value="none" ${c.effect==='none'?'selected':''}>Без эффекта</option><option value="glow" ${c.effect==='glow'?'selected':''}>Свечение</option><option value="shadow" ${c.effect==='shadow'?'selected':''}>Тень</option><option value="outline" ${c.effect==='outline'?'selected':''}>Обводка</option><option value="glow-outline" ${c.effect==='glow-outline'?'selected':''}>Обводка + Свечение</option></select></div>
                             <div><label class="${labelClass}">Цвет эффекта</label><input type="color" id="setting-outline-color" value="${c.outlineColor || '#000000'}" class="h-9 w-full rounded cursor-pointer border-0 bg-slate-900" oninput="debouncePreview()"></div>
                             <div><label class="${labelClass}">Ширина</label><input type="number" id="setting-outline-width" value="${c.outlineWidth || 2}" min="0" max="20" oninput="debouncePreview()" class="${inputClass}"></div>
                         </div>
@@ -884,10 +838,10 @@
                             <label class="block text-xs font-semibold text-slate-400">Содержимое (Смешанное)</label>
                             <div class="flex gap-2">
                                 <label class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white px-2 py-1.5 rounded cursor-pointer text-xs transition-colors"><i class="fas fa-image"></i> Фото <input type="file" accept="image/*" class="hidden" onchange="handleImageUpload(event, ${index})"></label>
-                                <button onclick="openGiftSelector(${index})" class="bg-indigo-600/30 hover:bg-indigo-500/50 text-indigo-300 border border-indigo-500/50 px-2 py-1.5 rounded text-xs transition-colors"><i class="fas fa-gift"></i> Подарки</button>
+                                <button onclick="openGiftSelectorForAdding(${index})" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1.5 rounded text-xs transition-colors shadow-lg"><i class="fas fa-plus"></i> Подарок</button>
                             </div>
                         </div>
-                        <div id="row-items-${index}" class="flex gap-3 overflow-x-auto pb-2 custom-scroll"></div>
+                        <div id="row-items-${index}" class="flex gap-3 overflow-x-auto pb-2 custom-scroll items-center"></div>
                     </div>
                 `;
                 container.appendChild(rowEl);
@@ -903,14 +857,13 @@
             list.innerHTML = '';
             
             const images = row.images || [];
-            const gifts = row.gifts || [];
+            const gifts = row.gifts || []; // Array of objects
 
             if(images.length === 0 && gifts.length === 0) {
-                list.innerHTML = '<div class="w-full text-slate-500 text-xs text-center py-6 border border-dashed border-slate-800 rounded-lg">Пусто. Загрузите фото или выберите подарки</div>';
+                list.innerHTML = '<div class="w-full text-slate-500 text-xs text-center py-6 border border-dashed border-slate-800 rounded-lg">Пусто. Загрузите фото или добавьте подарки</div>';
                 return;
             }
 
-            // Render uploaded images
             images.forEach((url, i) => {
                 const div = document.createElement('div');
                 div.className = 'relative flex-shrink-0 w-20 h-20 bg-slate-900 rounded-lg group overflow-hidden border border-slate-700 shadow-sm';
@@ -923,87 +876,110 @@
                 list.appendChild(div);
             });
 
-            // Render selected gifts
-            gifts.forEach((giftId, i) => {
-                const gift = giftLibrary.find(g => g.gift_id === giftId);
-                if(!gift) return;
+            gifts.forEach((giftInstance) => {
+                const gData = giftLibrary.find(g => g.gift_id === giftInstance.gift_id);
+                if(!gData) return;
                 
                 const div = document.createElement('div');
-                div.className = 'relative flex-shrink-0 w-20 h-20 bg-indigo-900/40 rounded-lg group overflow-hidden border border-indigo-700/50 shadow-sm flex flex-col items-center justify-center p-1';
+                div.className = 'relative flex-shrink-0 w-24 h-24 bg-indigo-900/40 rounded-lg group overflow-hidden border border-indigo-700/50 shadow-sm flex flex-col items-center justify-center p-1';
                 div.innerHTML = `
-                    <img src="${gift.icon}" class="w-10 h-10 object-contain mb-1">
-                    <div class="text-[9px] text-white font-medium truncate w-full text-center">${gift.name}</div>
-                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <button onclick="removeGiftFromRow('${giftId}', ${rowIndex})" class="bg-red-500 text-white w-7 h-7 rounded flex items-center justify-center text-xs"><i class="fas fa-trash-alt"></i></button>
+                    <img src="${gData.icon}" class="w-10 h-10 object-contain mb-1">
+                    <div class="text-[9px] text-indigo-200 font-medium truncate w-full text-center">Индивидуальный<br>подарок</div>
+                    <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 backdrop-blur-sm">
+                        <button onclick="openGiftEditModal(${rowIndex}, '${giftInstance.instanceId}')" class="bg-blue-500 text-white w-8 h-8 rounded flex items-center justify-center text-sm shadow"><i class="fas fa-cog"></i></button>
+                        <button onclick="removeGiftFromRow('${giftInstance.instanceId}', ${rowIndex})" class="bg-red-500 text-white w-8 h-8 rounded flex items-center justify-center text-sm shadow"><i class="fas fa-trash-alt"></i></button>
                     </div>
                 `;
                 list.appendChild(div);
             });
         }
 
-        // --- GIFT SELECTOR MODAL LOGIC ---
-        function openGiftSelector(rowIndex) {
+        function openGiftSelectorForAdding(rowIndex) {
             currentEditingRowIndex = rowIndex;
-            const row = currentWidget.config.rows[rowIndex];
-            tempSelectedGifts = [...(row.gifts || [])];
-            renderGiftSelectorGrid();
-            document.getElementById('gift-selector-modal').classList.add('active');
-        }
-
-        function renderGiftSelectorGrid() {
             const grid = document.getElementById('gift-selector-grid');
             if (giftLibrary.length === 0) {
                 grid.innerHTML = '<div class="col-span-full text-slate-500 text-center py-8">Библиотека подарков пуста</div>';
-                return;
-            }
-
-            const selectedSet = new Set(tempSelectedGifts);
-            
-            grid.innerHTML = giftLibrary.map(g => {
-                const isSelected = selectedSet.has(g.gift_id);
-                return `
-                    <div onclick="toggleGiftSelection('${g.gift_id}')" class="relative p-3 border ${isSelected ? 'border-blue-500 bg-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.2)]' : 'border-slate-700 bg-slate-900/80 hover:border-slate-500'} rounded-xl cursor-pointer flex flex-col items-center justify-center transition-all group">
-                        ${isSelected ? '<div class="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center shadow-md"><i class="fas fa-check text-[10px] text-white"></i></div>' : ''}
+            } else {
+                grid.innerHTML = giftLibrary.map(g => `
+                    <div onclick="addGiftToRow('${g.gift_id}')" class="relative p-3 border border-slate-700 bg-slate-900/80 hover:border-blue-500 hover:bg-blue-900/20 rounded-xl cursor-pointer flex flex-col items-center justify-center transition-all group shadow-sm hover:shadow-[0_0_15px_rgba(59,130,246,0.2)]">
                         <img src="${g.icon}" class="h-14 w-14 object-contain mb-2 drop-shadow-md">
                         <div class="text-xs text-slate-200 text-center w-full truncate font-medium mb-1">${g.name}</div>
                         <div class="text-[10px] text-yellow-400 font-bold bg-yellow-400/10 px-2 py-0.5 rounded border border-yellow-400/20">${g.cost} 🪙</div>
                     </div>
-                `;
-            }).join('');
-        }
-
-        function toggleGiftSelection(giftId) {
-            const idx = tempSelectedGifts.indexOf(giftId);
-            if(idx > -1) tempSelectedGifts.splice(idx, 1);
-            else tempSelectedGifts.push(giftId);
-            renderGiftSelectorGrid();
-        }
-
-        function toggleAllGiftsInSelector() {
-            if(tempSelectedGifts.length === giftLibrary.length) tempSelectedGifts = [];
-            else tempSelectedGifts = giftLibrary.map(g => g.gift_id);
-            renderGiftSelectorGrid();
-        }
-
-        function saveSelectedGifts() {
-            if(currentEditingRowIndex !== null && currentWidget) {
-                currentWidget.config.rows[currentEditingRowIndex].gifts = [...tempSelectedGifts];
-                renderRowItems(`row-items-${currentEditingRowIndex}`, currentWidget.config.rows[currentEditingRowIndex], currentEditingRowIndex);
-                updatePreview();
-                saveWidget();
+                `).join('');
             }
+            document.getElementById('gift-selector-modal').classList.add('active');
+        }
+
+        function addGiftToRow(giftId) {
+            const row = currentWidget.config.rows[currentEditingRowIndex];
+            const gData = giftLibrary.find(g => g.gift_id === giftId);
+            if(!row.gifts) row.gifts = [];
+            
+            // Generate default specific config
+            const newInstance = {
+                instanceId: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                gift_id: giftId,
+                customText: currentWidget.config.textTemplate || '{name} - {cost}₽',
+                fontSize: currentWidget.config.fontSize || 24,
+                verticalOffset: 0,
+                groupOutline: false,
+                groupOutlineColor: '#ffffff',
+                groupOutlineWidth: 3
+            };
+            
+            row.gifts.push(newInstance);
+            renderRowItems(`row-items-${currentEditingRowIndex}`, row, currentEditingRowIndex);
+            updatePreview(); saveWidget();
             closeModal('gift-selector-modal');
         }
 
-        function removeGiftFromRow(giftId, rowIndex) {
+        function removeGiftFromRow(instanceId, rowIndex) {
             const row = currentWidget.config.rows[rowIndex];
-            const idx = row.gifts.indexOf(giftId);
-            if(idx > -1) row.gifts.splice(idx, 1);
+            row.gifts = row.gifts.filter(g => g.instanceId !== instanceId);
             renderRowItems(`row-items-${rowIndex}`, row, rowIndex);
-            updatePreview();
-            saveWidget();
+            updatePreview(); saveWidget();
         }
-        // -------------------------------
+
+        function openGiftEditModal(rowIndex, instanceId) {
+            currentEditingRowIndex = rowIndex;
+            currentEditingGiftInstanceId = instanceId;
+            
+            const giftInstance = currentWidget.config.rows[rowIndex].gifts.find(g => g.instanceId === instanceId);
+            if(!giftInstance) return;
+
+            document.getElementById('edit-gift-text').value = giftInstance.customText || '';
+            document.getElementById('edit-gift-size').value = giftInstance.fontSize || 24;
+            document.getElementById('edit-gift-offset').value = giftInstance.verticalOffset || 0;
+            
+            const outlineEnable = document.getElementById('edit-gift-outline-enable');
+            outlineEnable.checked = giftInstance.groupOutline || false;
+            document.getElementById('outline-settings-group').style.opacity = outlineEnable.checked ? '1' : '0.5';
+            
+            document.getElementById('edit-gift-outline-color').value = giftInstance.groupOutlineColor || '#ffffff';
+            document.getElementById('edit-gift-outline-width').value = giftInstance.groupOutlineWidth || 3;
+
+            document.getElementById('gift-edit-modal').classList.add('active');
+        }
+
+        function saveGiftEdit() {
+            if(currentEditingRowIndex === null || !currentEditingGiftInstanceId) return;
+            const row = currentWidget.config.rows[currentEditingRowIndex];
+            const giftInstance = row.gifts.find(g => g.instanceId === currentEditingGiftInstanceId);
+            
+            if(giftInstance) {
+                giftInstance.customText = document.getElementById('edit-gift-text').value;
+                giftInstance.fontSize = parseInt(document.getElementById('edit-gift-size').value) || 24;
+                giftInstance.verticalOffset = parseInt(document.getElementById('edit-gift-offset').value) || 0;
+                giftInstance.groupOutline = document.getElementById('edit-gift-outline-enable').checked;
+                giftInstance.groupOutlineColor = document.getElementById('edit-gift-outline-color').value;
+                giftInstance.groupOutlineWidth = parseInt(document.getElementById('edit-gift-outline-width').value) || 3;
+            }
+
+            renderRowItems(`row-items-${currentEditingRowIndex}`, row, currentEditingRowIndex);
+            updatePreview(); saveWidget();
+            closeModal('gift-edit-modal');
+        }
 
         function addRow() {
             currentWidget.config.rows.push({ id: Date.now().toString(), speed: 15, direction: 'left', images: [], gifts: [] });
@@ -1122,44 +1098,76 @@
             }
         }
 
-        // Helper to build a gift UI element based on config
-        function buildGiftPreviewElement(giftData, config) {
+        function buildGiftPreviewElement(giftData, globalConfig, giftInstance) {
             const item = document.createElement('div');
             item.style.position = 'relative';
             item.style.display = 'flex';
             item.style.alignItems = 'center';
             item.style.justifyContent = 'center';
             
-            if (config.textPosition === 'top') item.style.flexDirection = 'column-reverse';
-            else if (config.textPosition === 'bottom') item.style.flexDirection = 'column';
+            if (globalConfig.textPosition === 'top') item.style.flexDirection = 'column-reverse';
+            else if (globalConfig.textPosition === 'bottom') item.style.flexDirection = 'column';
             
+            // Групповая обводка (комбинированный drop-shadow)
+            if (giftInstance && giftInstance.groupOutline) {
+                const w = giftInstance.groupOutlineWidth || 3;
+                const c = giftInstance.groupOutlineColor || '#ffffff';
+                item.style.filter = `
+                    drop-shadow(${w}px 0px 0px ${c}) 
+                    drop-shadow(-${w}px 0px 0px ${c}) 
+                    drop-shadow(0px ${w}px 0px ${c}) 
+                    drop-shadow(0px -${w}px 0px ${c})
+                    drop-shadow(${w}px ${w}px 0px ${c})
+                    drop-shadow(-${w}px -${w}px 0px ${c})
+                    drop-shadow(${w}px -${w}px 0px ${c})
+                    drop-shadow(-${w}px ${w}px 0px ${c})
+                `;
+            }
+
             const img = document.createElement('img');
             img.src = giftData.icon;
-            img.style.height = `${config.imageHeight || 120}px`;
-            img.className = "object-contain drop-shadow-xl";
+            img.style.height = `${globalConfig.imageHeight || 120}px`;
+            // Убираем свою обводку у картинки если включена групповая, чтобы не перебивало
+            img.className = (giftInstance && giftInstance.groupOutline) ? "object-contain" : "object-contain drop-shadow-xl";
             
             const text = document.createElement('div');
-            let tpl = config.textTemplate || '{name}';
+            // Если текст пустой, будет пусто. Если не настроен вообще (старая версия), берем глобальный.
+            let tpl = (giftInstance && giftInstance.customText !== undefined) ? giftInstance.customText : (globalConfig.textTemplate || '{name}');
+            
             tpl = tpl.replace(/{name}/g, giftData.name).replace(/{cost}/g, giftData.cost);
-            text.textContent = tpl;
-            text.style.fontFamily = `"${config.fontFamily || 'Inter'}", sans-serif`;
-            text.style.fontSize = `${config.fontSize || 24}px`;
-            text.style.color = config.color || '#fff';
+            text.innerHTML = escapeHtml(tpl).replace(/\n/g, '<br>'); // Поддержка переноса строк
+            
+            text.style.fontFamily = `"${globalConfig.fontFamily || 'Inter'}", sans-serif`;
+            text.style.fontSize = `${(giftInstance && giftInstance.fontSize) ? giftInstance.fontSize : (globalConfig.fontSize || 24)}px`;
+            text.style.color = globalConfig.color || '#fff';
             text.style.fontWeight = 'bold';
             text.style.textAlign = 'center';
-            text.style.whiteSpace = 'nowrap';
+            text.style.whiteSpace = 'pre-wrap'; // На всякий случай для правильного рендеринга
             text.style.zIndex = '2';
             
-            if (config.textPosition === 'center') {
-                text.style.position = 'absolute'; text.style.top = '50%'; text.style.left = '50%'; text.style.transform = 'translate(-50%, -50%)';
+            // Вертикальный сдвиг
+            if (giftInstance && giftInstance.verticalOffset) {
+                text.style.transform = `translateY(${giftInstance.verticalOffset}px)`;
+            }
+
+            if (globalConfig.textPosition === 'center') {
+                text.style.position = 'absolute'; text.style.top = '50%'; text.style.left = '50%';
+                if (giftInstance && giftInstance.verticalOffset) {
+                    text.style.transform = `translate(-50%, -50%) translateY(${giftInstance.verticalOffset}px)`;
+                } else {
+                    text.style.transform = 'translate(-50%, -50%)';
+                }
             } else {
-                text.style.marginTop = config.textPosition === 'bottom' ? '12px' : '0';
-                text.style.marginBottom = config.textPosition === 'top' ? '12px' : '0';
+                text.style.marginTop = globalConfig.textPosition === 'bottom' ? '12px' : '0';
+                text.style.marginBottom = globalConfig.textPosition === 'top' ? '12px' : '0';
             }
             
-            if(config.effect && config.effect !== 'none') text.classList.add(`effect-${config.effect}`);
-            text.style.setProperty('--outline-color', config.outlineColor || '#000');
-            text.style.setProperty('--outline-width', `${config.outlineWidth || 2}px`);
+            // Если включена групповая обводка, отключаем индивидуальные CSS-эффекты текста, чтобы не было "грязи"
+            if (!giftInstance || !giftInstance.groupOutline) {
+                if(globalConfig.effect && globalConfig.effect !== 'none') text.classList.add(`effect-${globalConfig.effect}`);
+                text.style.setProperty('--outline-color', globalConfig.outlineColor || '#000');
+                text.style.setProperty('--outline-width', `${globalConfig.outlineWidth || 2}px`);
+            }
             
             item.appendChild(img);
             if (tpl.trim() !== '') item.appendChild(text);
@@ -1209,7 +1217,7 @@
                     const buildTrackContent = () => {
                         const content = document.createElement('div');
                         content.className = 'marquee-content flex items-center';
-                        content.style.gap = '30px'; // fixed inner gap
+                        content.style.gap = '30px'; 
                         content.style.animation = `marquee-${row.direction || 'left'} ${row.speed || 15}s linear infinite`;
                         
                         images.forEach(url => {
@@ -1217,9 +1225,9 @@
                             img.className = "rounded shadow-lg object-contain"; content.appendChild(img);
                         });
                         
-                        gifts.forEach(giftId => {
-                            const gData = giftLibrary.find(g => g.gift_id === giftId);
-                            if(gData) content.appendChild(buildGiftPreviewElement(gData, c));
+                        gifts.forEach(giftInstance => {
+                            const gData = giftLibrary.find(g => g.gift_id === giftInstance.gift_id);
+                            if(gData) content.appendChild(buildGiftPreviewElement(gData, c, giftInstance));
                         });
                         return content;
                     };
@@ -1278,12 +1286,12 @@
                         indexCount++;
                     });
 
-                    gifts.forEach((giftId) => {
-                        const gData = giftLibrary.find(g => g.gift_id === giftId);
+                    gifts.forEach((giftInstance) => {
+                        const gData = giftLibrary.find(g => g.gift_id === giftInstance.gift_id);
                         if(gData) {
                             const slide = document.createElement('div');
                             slide.className = `slideshow-slide trans-${c.transition || 'fade'} ${indexCount === 0 ? 'active' : ''} flex items-center justify-center`;
-                            slide.appendChild(buildGiftPreviewElement(gData, c));
+                            slide.appendChild(buildGiftPreviewElement(gData, c, giftInstance));
                             rowContainer.appendChild(slide); slideElements.push(slide);
                             indexCount++;
                         }
@@ -1313,9 +1321,23 @@
             try {
                 const { data, error } = await supabase.from('p_widgets').select('*').eq('id', id).single();
                 if (error || !data) throw error;
+                
+                // Простая миграция прямо в OBS, если данные старого формата
+                if(data.config && data.config.rows) {
+                    data.config.rows.forEach(r => {
+                        if(r.gifts) r.gifts = r.gifts.map(g => typeof g === 'string' ? { instanceId: '0', gift_id: g } : g);
+                    });
+                }
+                
                 renderWidget(data, container);
                 supabase.channel(`public:p_widgets:id=eq.${id}`).on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'p_widgets', filter: `id=eq.${id}` }, payload => {
-                    renderWidget(payload.new, container);
+                    const newWidget = payload.new;
+                    if(newWidget.config && newWidget.config.rows) {
+                        newWidget.config.rows.forEach(r => {
+                            if(r.gifts) r.gifts = r.gifts.map(g => typeof g === 'string' ? { instanceId: '0', gift_id: g } : g);
+                        });
+                    }
+                    renderWidget(newWidget, container);
                 }).subscribe();
             } catch (err) {
                 container.innerHTML = '<div style="color:red; font-family:sans-serif; font-size:24px; font-weight:bold; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);">Ошибка: Виджет не найден</div>';
@@ -1340,6 +1362,103 @@
         }
         function alertCustom(title, msg) { showMessage(title, msg); }
         function escapeHtml(unsafe) { return (unsafe||'').toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+
+        (function() {
+            try {
+                const container = document.createElement('div');
+                container.id = 'mascot-container';
+                
+                const bubble = document.createElement('div');
+                bubble.id = 'mascot-bubble';
+                bubble.textContent = 'нажми на меня';
+                
+                const img = document.createElement('img');
+                img.id = 'mascot-img';
+                img.src = 'Gemini_Generated_Image_hdls1shdls1shdls-Photoroom.png';
+                
+                const videoWrapper = document.createElement('div');
+                videoWrapper.id = 'mascot-video-wrapper';
+                
+                const video = document.createElement('video');
+                video.id = 'mascot-video';
+                video.src = 'video_2026-08-08_05-21-29.mp4';
+                video.disablePictureInPicture = true; 
+                video.controls = false;
+                
+                videoWrapper.appendChild(video);
+                container.appendChild(bubble);
+                container.appendChild(img);
+                container.appendChild(videoWrapper);
+                
+                // Вставляем маскот только после полной загрузки DOM
+                window.addEventListener('DOMContentLoaded', () => {
+                    document.body.appendChild(container);
+                    container.style.display = 'block'; // Показываем
+                    
+                    let x = Math.random() * (window.innerWidth - 150);
+                    let y = Math.random() * (window.innerHeight - 150);
+                    let vx = 1.5 * (Math.random() > 0.5 ? 1 : -1);
+                    let vy = 1.5 * (Math.random() > 0.5 ? 1 : -1);
+                    let isVideoPlaying = false;
+
+                    function animateMascot() {
+                        const boundsW = isVideoPlaying ? 140 : 100;
+                        const boundsH = isVideoPlaying ? 140 : 100;
+
+                        x += vx;
+                        y += vy;
+                        
+                        if (x <= 0) { x = 0; vx *= -1; }
+                        if (x + boundsW >= window.innerWidth) { x = window.innerWidth - boundsW; vx *= -1; }
+                        
+                        if (y <= 0) { y = 0; vy *= -1; }
+                        if (y + boundsH >= window.innerHeight - 5) { y = window.innerHeight - boundsH - 5; vy *= -1; }
+
+                        container.style.transform = `translate(${x}px, ${y}px)`;
+                        requestAnimationFrame(animateMascot);
+                    }
+                    animateMascot();
+
+                    setInterval(() => {
+                        if(isVideoPlaying) return;
+                        if (Math.random() > 0.6) {
+                            bubble.style.opacity = '1';
+                            setTimeout(() => { bubble.style.opacity = '0'; }, 3000);
+                        }
+                    }, 5000);
+
+                    container.addEventListener('click', () => {
+                        if (isVideoPlaying) return;
+                        
+                        bubble.style.opacity = '0';
+                        img.style.display = 'none';
+                        videoWrapper.style.display = 'block';
+                        isVideoPlaying = true;
+                        
+                        // Защита от багов браузера при автовоспроизведении
+                        const playPromise = video.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(e => {
+                                console.error("Auto-play prevented", e);
+                                // Возвращаем фото если видео заблокировано
+                                videoWrapper.style.display = 'none';
+                                img.style.display = 'block';
+                                isVideoPlaying = false;
+                            });
+                        }
+                    });
+
+                    video.addEventListener('ended', () => {
+                        videoWrapper.style.display = 'none';
+                        img.style.display = 'block';
+                        isVideoPlaying = false;
+                        video.currentTime = 0; // Сбрасываем для повторного клика
+                    });
+                });
+            } catch(e) {
+                console.error("Mascot init failed", e);
+            }
+        })();
     </script>
 </body>
 </html>
