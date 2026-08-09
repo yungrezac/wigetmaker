@@ -52,7 +52,6 @@
             align-items: center;
         }
         
-        /* Классы для эффекта затухания по краям */
         .fade-edges-small { -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent); mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent); }
         .fade-edges-medium { -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); }
         .fade-edges-large { -webkit-mask-image: linear-gradient(to right, transparent, black 25%, black 75%, transparent); mask-image: linear-gradient(to right, transparent, black 25%, black 75%, transparent); }
@@ -60,7 +59,7 @@
         .marquee-content {
             display: flex;
             align-items: center;
-            flex-shrink: 0; /* Важно для предотвращения сжатия */
+            flex-shrink: 0;
             will-change: transform;
         }
 
@@ -306,7 +305,6 @@
     </div>
 
     <div id="auth-modal" class="modal px-4">
-        <!-- Auth Modal Content (unchanged) -->
         <div class="bg-slate-900 border border-slate-700 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform transition-all relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
             <div class="text-center mb-6 mt-2">
@@ -354,7 +352,6 @@
     </div>
 
     <div id="create-modal" class="modal px-4">
-        <!-- Create Modal Content (unchanged) -->
         <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-sm shadow-2xl">
             <h2 class="text-xl font-bold text-white mb-5">Новый виджет</h2>
             <div class="space-y-4">
@@ -378,7 +375,6 @@
     </div>
 
     <div id="msg-modal" class="modal z-[100] px-4">
-        <!-- Msg Modal Content (unchanged) -->
         <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-sm text-center shadow-2xl">
             <i id="msg-icon" class="fas fa-info-circle text-4xl mb-4 text-blue-500"></i>
             <h3 id="msg-title" class="text-xl font-bold text-white mb-2">Message</h3>
@@ -388,7 +384,6 @@
     </div>
 
     <div id="gift-selector-modal" class="modal z-[60] px-4">
-        <!-- Gift Selector Content (unchanged) -->
         <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl relative">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-white">Выбор подарка</h2>
@@ -400,7 +395,6 @@
         </div>
     </div>
 
-    <!-- Обновленный модальный редактор для ВСЕХ элементов -->
     <div id="item-editor-modal" class="modal z-[70] px-4">
         <div class="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-5xl flex flex-col md:flex-row gap-6 shadow-2xl relative">
             <div class="flex-1 space-y-4 overflow-y-auto custom-scroll max-h-[70vh] pr-2">
@@ -412,7 +406,6 @@
                 <input type="hidden" id="ie-rowIndex">
                 <input type="hidden" id="ie-itemIndex">
 
-                <!-- Новые настройки картинки/подарка -->
                 <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700 mb-4">
                     <h3 class="text-sm font-bold text-indigo-400 mb-3"><i class="fas fa-image mr-1.5"></i>Настройки изображения</h3>
                     
@@ -441,7 +434,6 @@
                     </div>
                 </div>
 
-                <!-- Настройки текста -->
                 <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
                     <h3 class="text-sm font-bold text-blue-400 mb-3"><i class="fas fa-font mr-1.5"></i>Настройки текста</h3>
                     
@@ -551,7 +543,7 @@
         var DEFAULT_CONFIGS = {
             'image-marquee': {
                 fontFamily: 'Inter', color: '#ffffff', gap: 20, imageHeight: 150, edgeFade: 'medium',
-                rows: [{ id: Date.now().toString(), speed: 15, direction: 'left', items: [] }]
+                rows: [{ id: Date.now().toString(), speed: 5, direction: 'left', items: [] }] // speed теперь 5 по умолчанию
             },
             'multi-slideshow': {
                 fontFamily: 'Inter', color: '#ffffff', delay: 5, transition: 'fade', rowHeight: 320, gap: 20,
@@ -578,7 +570,6 @@
             window.addEventListener('resize', resizePreview);
         });
 
-        // (Mascot, Auth and Library loading logic omitted for brevity as it remains identical)
         function initMascot() { /* ... unchanged ... */ }
         async function loadGiftsFromDB() {
             try {
@@ -617,7 +608,7 @@
             switchAuthTab('login');
         }
         function showError(msg) { document.getElementById('auth-error').textContent = msg; document.getElementById('auth-error').classList.remove('hidden'); }
-        async function loadWidgets() { /* ... unchanged ... */ 
+        async function loadWidgets() { 
             const listEl = document.getElementById('widgets-list');
             listEl.innerHTML = '<div class="text-center text-slate-500 py-8 text-sm"><i class="fas fa-circle-notch fa-spin text-xl mb-2"></i></div>';
             const { data, error } = await supabase.from('p_widgets').select('*').order('created_at', { ascending: false });
@@ -625,7 +616,7 @@
             widgets = data || [];
             renderWidgetList();
         }
-        function renderWidgetList() { /* ... unchanged ... */ 
+        function renderWidgetList() { 
             const listEl = document.getElementById('widgets-list');
             listEl.innerHTML = '';
             if (widgets.length === 0) return listEl.innerHTML = '<div class="text-center text-slate-500 py-8 text-sm bg-slate-900/30 rounded-xl border border-dashed border-white/5 mt-2">Нет виджетов</div>';
@@ -686,12 +677,14 @@
             const { error } = await supabase.from('p_widgets').update({ config: currentWidget.config, updated_at: new Date().toISOString() }).eq('id', currentWidget.id);
             if (error) return alertCustom("Ошибка", "Не удалось сохранить");
             const btn = document.querySelector('button[onclick="saveWidget()"]');
-            const orig = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check"></i> Сохранено'; btn.classList.replace('bg-blue-600', 'bg-green-600');
-            setTimeout(() => { btn.innerHTML = orig; btn.classList.replace('bg-green-600', 'bg-blue-600'); }, 2000);
+            if(btn) {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Сохранено'; btn.classList.replace('bg-blue-600', 'bg-green-600');
+                setTimeout(() => { btn.innerHTML = orig; btn.classList.replace('bg-green-600', 'bg-blue-600'); }, 2000);
+            }
         }
 
-        async function deleteCurrentWidget() { /* ... unchanged ... */ 
+        async function deleteCurrentWidget() {
             if (!currentWidget) return;
             const btn = document.querySelector('button[onclick="deleteCurrentWidget()"]');
             if (btn.textContent.includes('Точно?')) {
@@ -842,8 +835,8 @@
                     controlsHtml = `
                     <div class="flex gap-4 mb-4">
                         <div class="flex-1">
-                            <label class="${labelClass} text-[10px]">Скорость полного цикла (сек)</label>
-                            <input type="number" value="${row.speed}" min="1" max="200" class="row-speed ${inputClass}" data-idx="${index}" oninput="updateRowConfig(this)">
+                            <label class="${labelClass} text-[10px]">Время на 1 эл. (сек)</label>
+                            <input type="number" value="${row.speed !== undefined ? row.speed : 5}" min="0.1" max="50" step="0.5" class="row-speed ${inputClass}" data-idx="${index}" oninput="updateRowConfig(this)">
                         </div>
                         <div class="flex-1">
                             <label class="${labelClass} text-[10px]">Направление</label>
@@ -886,7 +879,7 @@
 
         function addRow() {
             if(!currentWidget.config.rows) currentWidget.config.rows = [];
-            currentWidget.config.rows.push({ id: Date.now().toString(), speed: 25, direction: 'left', itemGap: 30, items: [] });
+            currentWidget.config.rows.push({ id: Date.now().toString(), speed: 5, direction: 'left', itemGap: 30, items: [] });
             renderRowsEditor(); debouncePreview();
         }
         function removeRow(idx) {
@@ -895,7 +888,7 @@
         }
         function updateRowConfig(el) {
             const idx = el.getAttribute('data-idx');
-            if(el.classList.contains('row-speed')) currentWidget.config.rows[idx].speed = parseInt(el.value) || 25;
+            if(el.classList.contains('row-speed')) currentWidget.config.rows[idx].speed = parseFloat(el.value) || 5;
             if(el.classList.contains('row-dir')) currentWidget.config.rows[idx].direction = el.value;
             if(el.classList.contains('row-item-gap')) currentWidget.config.rows[idx].itemGap = parseInt(el.value) || 0;
             debouncePreview();
@@ -940,7 +933,6 @@
                 const { data } = supabase.storage.from('p_widget_assets').getPublicUrl(path);
                 if(!currentWidget.config.rows[rowIndex].items) currentWidget.config.rows[rowIndex].items = [];
                 
-                // Инициализируем стандартными параметрами для фото
                 currentWidget.config.rows[rowIndex].items.push({ 
                     type: 'image', url: data.publicUrl,
                     text: '', fontSize: 28, offset: 0,
@@ -988,13 +980,11 @@
             debouncePreview();
         }
 
-        // ОТКРЫТИЕ УНИВЕРСАЛЬНОГО РЕДАКТОРА (ФОТО И ПОДАРКИ)
         function openItemEditor(rowIndex, itemIndex) {
             const item = currentWidget.config.rows[rowIndex].items[itemIndex];
             document.getElementById('ie-rowIndex').value = rowIndex;
             document.getElementById('ie-itemIndex').value = itemIndex;
             
-            // Text config
             document.getElementById('ie-text').value = (item.text || '').replace(/\\n/g, '\n');
             document.getElementById('ie-fontSize').value = item.fontSize || 28;
             document.getElementById('val-ie-font').textContent = (item.fontSize || 28) + 'px';
@@ -1006,13 +996,11 @@
             document.getElementById('val-ie-width').textContent = (item.effectWidth || 2) + 'px';
             document.getElementById('ie-effectColor').value = item.effectColor || '#000000';
             
-            // Image config
             document.getElementById('ie-itemHeight').value = item.itemHeight || 0;
             document.getElementById('val-ie-size').textContent = (item.itemHeight || 0) == 0 ? 'Глобальный' : (item.itemHeight + 'px');
             document.getElementById('ie-itemGlow').value = item.itemGlow || 'none';
             document.getElementById('ie-itemGlowColor').value = item.itemGlowColor || '#3b82f6';
             
-            // Уведомление для фото
             const hint = document.getElementById('ie-text-hint');
             if(item.type === 'image') hint.textContent = "Текст будет показан рядом с картинкой.";
             else hint.textContent = "Доступно: {name}, {cost}";
@@ -1058,10 +1046,8 @@
             return shadow.join(', ');
         }
 
-        // УНИВЕРСАЛЬНЫЙ БИЛДЕР ЭЛЕМЕНТА
         function buildItemElement(itemData, globalConfig, customGiftData = null) {
             const wrap = document.createElement('div');
-            // ОЧЕНЬ ВАЖНО: display: flex и align-items: center держат все в одной линии ровно
             wrap.style.position = 'relative';
             wrap.style.display = 'flex';
             wrap.style.flexDirection = itemData.position === 'top' ? 'column-reverse' : 'column';
@@ -1070,7 +1056,6 @@
             
             const img = document.createElement('img');
             
-            // Источник изображения
             let tpl = itemData.text || '';
             if(itemData.type === 'gift') {
                 const dbGift = customGiftData || globalGifts.find(g => g.gift_id === itemData.gift_id);
@@ -1081,19 +1066,16 @@
                 img.src = itemData.url;
             }
 
-            // Высота (Глобальная или индивидуальная)
             const finalHeight = (itemData.itemHeight && itemData.itemHeight > 0) ? itemData.itemHeight : (globalConfig.imageHeight || 150);
             img.style.maxHeight = `${finalHeight}px`;
             img.className = "object-contain shrink-0";
             
-            // Эффекты самой картинки
             if(itemData.itemGlow === 'shadow') {
                 img.style.filter = `drop-shadow(0px 10px 15px ${itemData.itemGlowColor || '#000'})`;
             } else if(itemData.itemGlow === 'glow') {
                 img.style.filter = `drop-shadow(0px 0px 15px ${itemData.itemGlowColor || '#3b82f6'}) drop-shadow(0px 0px 30px ${itemData.itemGlowColor || '#3b82f6'})`;
             }
 
-            // Создание текста (если есть)
             if(tpl.trim() !== '') {
                 const text = document.createElement('div');
                 text.innerHTML = tpl.replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
@@ -1129,8 +1111,6 @@
             }
 
             wrap.appendChild(img);
-            // Если текст позиционирован сверху или снизу, flex-direction уже стоит правильный,
-            // но flex order надо поменять, чтобы картинка не перекрывала
             if(tpl.trim() !== '' && itemData.position === 'top') {
                 img.style.order = "2";
                 wrap.children[0].style.order = "1";
@@ -1227,7 +1207,6 @@
                     targetHeight = (rowsCount * rHeight) + Math.max(0, rowsCount - 1) * gap;
                     targetHeight = Math.max(600, targetHeight);
                 } else if (currentWidget.widget_type === 'image-marquee') {
-                    // Ищем максимальную высоту элементов в бегущей строке
                     let maxItemHeight = c.imageHeight || 150;
                     if(c.rows) {
                         c.rows.forEach(r => {
@@ -1238,7 +1217,7 @@
                             }
                         });
                     }
-                    targetHeight = (rowsCount * maxItemHeight) + Math.max(0, rowsCount - 1) * gap + 120; // 120 - запас на текст и отступы
+                    targetHeight = (rowsCount * maxItemHeight) + Math.max(0, rowsCount - 1) * gap + 120; 
                     targetHeight = Math.max(600, targetHeight);
                 }
             }
@@ -1282,26 +1261,26 @@
                     const track = document.createElement('div');
                     track.className = 'marquee-track-container';
                     
-                    // Применяем эффект краев
-                    if(c.edgeFade && c.edgeFade !== 'none') {
-                        track.classList.add(`fade-edges-${c.edgeFade}`);
-                    }
-
+                    if(c.edgeFade && c.edgeFade !== 'none') track.classList.add(`fade-edges-${c.edgeFade}`);
                     if (rowIndex > 0) track.style.marginTop = `${c.gap !== undefined ? c.gap : 20}px`;
                     
                     const buildContent = () => {
                         const content = document.createElement('div');
                         content.className = 'marquee-content';
-                        content.style.animation = `marquee-${row.direction || 'left'} ${row.speed || 25}s linear infinite`;
                         
-                        // ДЕЛАЕМ СТРОКУ БЕСКОНЕЧНОЙ (Дублируем элементы много раз, чтобы перекрыть любую ширину)
                         let multipliedItems = [];
-                        // 15 дубликатов хватит, чтобы заполнить любой экран даже маленькими элементами
-                        for(let k=0; k<15; k++) multipliedItems.push(...row.items);
+                        const DUPLICATES = 15; // Размножаем, чтобы строка была бесконечной
+                        for(let k=0; k<DUPLICATES; k++) multipliedItems.push(...row.items);
+                        
+                        // ВАЖНО: Физически постоянная скорость!
+                        // Время = (Секунды на 1 элемент) * (Общее количество элементов в длинной ленте)
+                        const timePerItem = row.speed !== undefined ? row.speed : 5;
+                        const totalDuration = timePerItem * multipliedItems.length;
+
+                        content.style.animation = `marquee-${row.direction || 'left'} ${totalDuration}s linear infinite`;
 
                         multipliedItems.forEach(item => {
                             const itemEl = buildItemElement(item, c);
-                            // Отступ между элементами
                             itemEl.style.marginLeft = `${(row.itemGap !== undefined ? row.itemGap : 30) / 2}px`;
                             itemEl.style.marginRight = `${(row.itemGap !== undefined ? row.itemGap : 30) / 2}px`;
                             content.appendChild(itemEl);
@@ -1309,8 +1288,6 @@
                         return content;
                     };
 
-                    // Вставляем ровно 2 идентичных блока. Один уезжает, второй идет следом. 
-                    // За счет дублирования элементов внутри блока, они длиннее экрана, поэтому разрывов не будет.
                     track.appendChild(buildContent());
                     track.appendChild(buildContent());
                     wrapper.appendChild(track);
@@ -1394,8 +1371,13 @@
             }
         }
 
-        function copyObsUrl() {
+        async function copyObsUrl() {
             if(!currentWidget) return;
+            
+            // ВАЖНО: Принудительно сохраняем виджет в БД перед копированием ссылки, 
+            // чтобы OBS всегда получал последние настройки.
+            await saveWidget();
+            
             const url = new URL(window.location.href);
             url.searchParams.set('widgetId', currentWidget.id);
             const tempInput = document.createElement("input");
@@ -1405,7 +1387,7 @@
             
             const container = document.getElementById('preview-container');
             const h = container ? Math.max(600, container.scrollHeight) : 600;
-            showMessage("Скопировано!", `Ссылка для OBS скопирована.\nРекомендуемый размер источника: Ширина 800, Высота ${h}.`);
+            showMessage("Скопировано!", `Настройки сохранены, а ссылка скопирована.\nРекомендуемый размер в OBS: Ширина 800, Высота ${h}.`);
         }
 
         function showMessage(title, text) {
