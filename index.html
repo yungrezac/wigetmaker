@@ -144,12 +144,11 @@
 
         #mascot-container {
             position: fixed;
-            top: 0px;
-            left: 0px;
+            bottom: 300px; /* Отступ снизу 300px */
+            left: 30px;   /* Отступ слева 30px */
             z-index: 9999;
             pointer-events: auto;
             cursor: pointer;
-            will-change: transform;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -570,19 +569,87 @@
             window.addEventListener('resize', resizePreview);
         });
 
-        function initMascot() { /* ... unchanged ... */ }
+        // Функция инициализации маскота (полная версия, зафиксирован снизу)
+        function initMascot() {
+            if (window.location.search.includes('widgetId')) return;
+
+            const wrapper = document.getElementById('mascot-wrapper');
+            wrapper.innerHTML = `
+                <div id="mascot-container">
+                    <img id="mascot-img" src="Gemini_Generated_Image_hdls1shdls1shdls-Photoroom.png" alt="Mascot">
+                    <video id="mascot-video" src="video_2026-08-08_05-21-29.mp4" playsinline disablePictureInPicture></video>
+                    <div id="mascot-bubble" class="speech-bubble">Нажми на меня!</div>
+                </div>
+            `;
+            
+            const mascot = document.getElementById('mascot-container');
+            const img = document.getElementById('mascot-img');
+            const video = document.getElementById('mascot-video');
+            const bubble = document.getElementById('mascot-bubble');
+            
+            let isVideoPlaying = false;
+
+            // Периодическое появление подсказки
+            setInterval(() => {
+                if(!isVideoPlaying && Math.random() > 0.5) {
+                    bubble.classList.add('show');
+                    setTimeout(() => bubble.classList.remove('show'), 3000);
+                }
+            }, 6000);
+
+            // Клик по маскоту для воспроизведения видео
+            mascot.addEventListener('click', () => {
+                if(isVideoPlaying) return;
+                isVideoPlaying = true;
+                bubble.classList.remove('show');
+                
+                img.style.display = 'none';
+                video.style.display = 'block';
+                
+                video.currentTime = 0;
+                video.play().catch(e => {
+                    console.log("Autoplay failed", e);
+                    revertMascot();
+                });
+            });
+
+            video.addEventListener('ended', revertMascot);
+
+            function revertMascot() {
+                isVideoPlaying = false;
+                video.style.display = 'none';
+                img.style.display = 'block';
+            }
+        }
+
         async function loadGiftsFromDB() {
             try {
                 const { data, error } = await supabase.from('gift_library').select('*').order('cost', { ascending: true });
                 if(!error && data) globalGifts = data;
             } catch(e) { console.error("Gifts error", e); }
         }
-        function switchAuthTab(tab) { /* ... unchanged ... */ }
+
+        function switchAuthTab(tab) {
+            document.getElementById('auth-error').classList.add('hidden');
+            if (tab === 'login') {
+                document.getElementById('tab-login').className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-slate-800 text-white shadow shadow-black/20";
+                document.getElementById('tab-signup').className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white";
+                document.getElementById('form-login').className = 'space-y-5 block';
+                document.getElementById('form-signup').className = 'space-y-4 hidden';
+            } else {
+                document.getElementById('tab-signup').className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-slate-800 text-white shadow shadow-black/20";
+                document.getElementById('tab-login').className = "flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white";
+                document.getElementById('form-signup').className = 'space-y-4 block';
+                document.getElementById('form-login').className = 'space-y-5 hidden';
+            }
+        }
+
         async function checkAuth() {
             const { data: { session } } = await supabase.auth.getSession();
             handleAuthChange(session);
             supabase.auth.onAuthStateChange((_event, session) => handleAuthChange(session));
         }
+
         function handleAuthChange(session) {
             if (session) {
                 currentUser = session.user;
@@ -596,8 +663,36 @@
                 document.getElementById('btn-logout').classList.add('hidden');
             }
         }
-        async function handleLogin() { /* ... unchanged ... */ }
-        async function handleSignup() { /* ... unchanged ... */ }
+
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            if(!email || !password) return showError("Введите email и пароль");
+            const btn = document.querySelector('#form-login button');
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) { showError(error.message); btn.innerHTML = 'Войти'; }
+        }
+
+        async function handleSignup() {
+            const email = document.getElementById('signup-email').value;
+            const pass = document.getElementById('signup-password').value;
+            const conf = document.getElementById('signup-password-confirm').value;
+            if(!email || !pass) return showError("Введите email и пароль");
+            if(pass.length < 6) return showError("Пароль минимум 6 символов");
+            if(pass !== conf) return showError("Пароли не совпадают!");
+            const btn = document.querySelector('#form-signup button');
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            const { data, error } = await supabase.auth.signUp({ email, password: pass });
+            if (error) { showError(error.message); btn.innerHTML = 'Создать аккаунт'; }
+            else {
+                await supabase.auth.signInWithPassword({ email, password: pass });
+                btn.innerHTML = 'Создать аккаунт';
+                switchAuthTab('login');
+                showMessage("Успех", "Аккаунт создан");
+            }
+        }
+
         async function handleLogout() {
             await supabase.auth.signOut();
             widgets = []; currentWidget = null;
@@ -607,7 +702,12 @@
             document.getElementById('widgets-list').innerHTML = '';
             switchAuthTab('login');
         }
-        function showError(msg) { document.getElementById('auth-error').textContent = msg; document.getElementById('auth-error').classList.remove('hidden'); }
+
+        function showError(msg) { 
+            document.getElementById('auth-error').textContent = msg; 
+            document.getElementById('auth-error').classList.remove('hidden'); 
+        }
+
         async function loadWidgets() { 
             const listEl = document.getElementById('widgets-list');
             listEl.innerHTML = '<div class="text-center text-slate-500 py-8 text-sm"><i class="fas fa-circle-notch fa-spin text-xl mb-2"></i></div>';
@@ -616,6 +716,7 @@
             widgets = data || [];
             renderWidgetList();
         }
+
         function renderWidgetList() { 
             const listEl = document.getElementById('widgets-list');
             listEl.innerHTML = '';
@@ -638,6 +739,7 @@
                 listEl.appendChild(div);
             });
         }
+
         function showCreateModal() { document.getElementById('new-widget-name').value = ''; document.getElementById('create-modal').classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
@@ -675,7 +777,6 @@
             if (!currentWidget) return;
             syncFormToConfig();
             
-            // Защита от конфликта полей: передаем только config. Supabase полностью заменит JSONB.
             const { error } = await supabase.from('p_widgets')
                 .update({ config: currentWidget.config })
                 .eq('id', currentWidget.id);
@@ -894,13 +995,15 @@
             if(!currentWidget.config.rows) currentWidget.config.rows = [];
             currentWidget.config.rows.push({ id: Date.now().toString(), speed: 5, direction: 'left', itemGap: 30, items: [] });
             renderRowsEditor(); debouncePreview();
-            await saveWidget(); // АВТОСОХРАНЕНИЕ
+            await saveWidget(); 
         }
+        
         async function removeRow(idx) {
             currentWidget.config.rows.splice(idx, 1);
             renderRowsEditor(); debouncePreview();
-            await saveWidget(); // АВТОСОХРАНЕНИЕ
+            await saveWidget(); 
         }
+        
         function updateRowConfig(el) {
             const idx = el.getAttribute('data-idx');
             if(el.classList.contains('row-speed')) currentWidget.config.rows[idx].speed = parseFloat(el.value) || 5;
@@ -957,7 +1060,7 @@
                 
                 renderItemsList(`row-items-${rowIndex}`, currentWidget.config.rows[rowIndex].items, rowIndex);
                 debouncePreview();
-                await saveWidget(); // АВТОСОХРАНЕНИЕ
+                await saveWidget(); 
             } catch(e) { alertCustom("Ошибка", "Сбой загрузки"); }
             finally { label.innerHTML = orig; event.target.value = ''; }
         }
@@ -966,7 +1069,7 @@
             currentWidget.config.rows[rowIndex].items.splice(imgIndex, 1);
             renderItemsList(`row-items-${rowIndex}`, currentWidget.config.rows[rowIndex].items, rowIndex);
             debouncePreview();
-            await saveWidget(); // АВТОСОХРАНЕНИЕ
+            await saveWidget(); 
         }
 
         function openGiftSelector(rowIndex) {
@@ -995,7 +1098,7 @@
             });
             renderItemsList(`row-items-${rowIndex}`, currentWidget.config.rows[rowIndex].items, rowIndex);
             debouncePreview();
-            await saveWidget(); // АВТОСОХРАНЕНИЕ
+            await saveWidget(); 
         }
 
         function openItemEditor(rowIndex, itemIndex) {
@@ -1049,7 +1152,6 @@
             closeItemEditor();
             debouncePreview();
             
-            // ВОТ ГЛАВНОЕ ИСПРАВЛЕНИЕ: Автоматически отправляем данные в базу!
             await saveWidget(); 
         }
 
