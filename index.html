@@ -440,7 +440,7 @@
                     <div class="mb-3">
                         <label class="block text-xs font-semibold text-slate-400 mb-1.5">Текст (можно в несколько строк)</label>
                         <textarea id="ie-text" rows="3" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 text-white rounded-lg px-3 py-2 text-sm outline-none resize-none" oninput="updateItemLivePreview()"></textarea>
-                        <p id="ie-text-hint" class="text-[10px] text-slate-500 mt-1">Оставьте пустым, если текст не нужен. Доступно: {name}, {cost}</p>
+                        <p id="ie-text-hint" class="text-[10px] text-slate-500 mt-1">Оставьте пустым, если текст не нужен.</p>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4 mb-3">
@@ -543,7 +543,7 @@
         var DEFAULT_CONFIGS = {
             'image-marquee': {
                 fontFamily: 'Inter', color: '#ffffff', gap: 20, imageHeight: 150, edgeFade: 'medium',
-                rows: [{ id: Date.now().toString(), speed: 5, direction: 'left', items: [] }] // speed теперь 5 по умолчанию
+                rows: [{ id: Date.now().toString(), speed: 5, direction: 'left', items: [] }]
             },
             'multi-slideshow': {
                 fontFamily: 'Inter', color: '#ffffff', delay: 5, transition: 'fade', rowHeight: 320, gap: 20,
@@ -674,13 +674,26 @@
         async function saveWidget() {
             if (!currentWidget) return;
             syncFormToConfig();
-            const { error } = await supabase.from('p_widgets').update({ config: currentWidget.config, updated_at: new Date().toISOString() }).eq('id', currentWidget.id);
-            if (error) return alertCustom("Ошибка", "Не удалось сохранить");
+            
+            // Защита от конфликта полей: передаем только config. Supabase полностью заменит JSONB.
+            const { error } = await supabase.from('p_widgets')
+                .update({ config: currentWidget.config })
+                .eq('id', currentWidget.id);
+                
+            if (error) {
+                console.error("Save error:", error);
+                return alertCustom("Ошибка", "Не удалось сохранить. Проверьте консоль.");
+            }
+            
             const btn = document.querySelector('button[onclick="saveWidget()"]');
             if(btn) {
                 const orig = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check"></i> Сохранено'; btn.classList.replace('bg-blue-600', 'bg-green-600');
-                setTimeout(() => { btn.innerHTML = orig; btn.classList.replace('bg-green-600', 'bg-blue-600'); }, 2000);
+                btn.innerHTML = '<i class="fas fa-check"></i> Сохранено'; 
+                btn.classList.replace('bg-blue-600', 'bg-green-600');
+                setTimeout(() => { 
+                    btn.innerHTML = orig; 
+                    btn.classList.replace('bg-green-600', 'bg-blue-600'); 
+                }, 2000);
             }
         }
 
@@ -877,14 +890,16 @@
             if(rows.length===0) container.innerHTML = '<div class="text-center text-slate-500 py-6 text-sm border border-dashed border-slate-700 rounded-xl">Нет строк</div>';
         }
 
-        function addRow() {
+        async function addRow() {
             if(!currentWidget.config.rows) currentWidget.config.rows = [];
             currentWidget.config.rows.push({ id: Date.now().toString(), speed: 5, direction: 'left', itemGap: 30, items: [] });
             renderRowsEditor(); debouncePreview();
+            await saveWidget(); // АВТОСОХРАНЕНИЕ
         }
-        function removeRow(idx) {
+        async function removeRow(idx) {
             currentWidget.config.rows.splice(idx, 1);
             renderRowsEditor(); debouncePreview();
+            await saveWidget(); // АВТОСОХРАНЕНИЕ
         }
         function updateRowConfig(el) {
             const idx = el.getAttribute('data-idx');
@@ -942,14 +957,16 @@
                 
                 renderItemsList(`row-items-${rowIndex}`, currentWidget.config.rows[rowIndex].items, rowIndex);
                 debouncePreview();
+                await saveWidget(); // АВТОСОХРАНЕНИЕ
             } catch(e) { alertCustom("Ошибка", "Сбой загрузки"); }
             finally { label.innerHTML = orig; event.target.value = ''; }
         }
 
-        function removeItem(rowIndex, imgIndex) {
+        async function removeItem(rowIndex, imgIndex) {
             currentWidget.config.rows[rowIndex].items.splice(imgIndex, 1);
             renderItemsList(`row-items-${rowIndex}`, currentWidget.config.rows[rowIndex].items, rowIndex);
             debouncePreview();
+            await saveWidget(); // АВТОСОХРАНЕНИЕ
         }
 
         function openGiftSelector(rowIndex) {
@@ -967,7 +984,7 @@
             document.getElementById('gift-selector-modal').classList.add('active');
         }
 
-        function addGiftToRow(giftId, rowIndex) {
+        async function addGiftToRow(giftId, rowIndex) {
             closeModal('gift-selector-modal');
             if(!currentWidget.config.rows[rowIndex].items) currentWidget.config.rows[rowIndex].items = [];
             currentWidget.config.rows[rowIndex].items.push({ 
@@ -978,6 +995,7 @@
             });
             renderItemsList(`row-items-${rowIndex}`, currentWidget.config.rows[rowIndex].items, rowIndex);
             debouncePreview();
+            await saveWidget(); // АВТОСОХРАНЕНИЕ
         }
 
         function openItemEditor(rowIndex, itemIndex) {
@@ -1002,7 +1020,7 @@
             document.getElementById('ie-itemGlowColor').value = item.itemGlowColor || '#3b82f6';
             
             const hint = document.getElementById('ie-text-hint');
-            if(item.type === 'image') hint.textContent = "Текст будет показан рядом с картинкой.";
+            if(item.type === 'image') hint.textContent = "Текст будет показан поверх или рядом с картинкой.";
             else hint.textContent = "Доступно: {name}, {cost}";
 
             document.getElementById('item-editor-modal').classList.add('active');
@@ -1011,7 +1029,7 @@
 
         function closeItemEditor() { closeModal('item-editor-modal'); }
 
-        function saveItemEdit() {
+        async function saveItemEdit() {
             const rIdx = document.getElementById('ie-rowIndex').value;
             const iIdx = document.getElementById('ie-itemIndex').value;
             const item = currentWidget.config.rows[rIdx].items[iIdx];
@@ -1030,6 +1048,9 @@
             
             closeItemEditor();
             debouncePreview();
+            
+            // ВОТ ГЛАВНОЕ ИСПРАВЛЕНИЕ: Автоматически отправляем данные в базу!
+            await saveWidget(); 
         }
 
         function getStrokeTextShadow(width, color) {
@@ -1269,11 +1290,9 @@
                         content.className = 'marquee-content';
                         
                         let multipliedItems = [];
-                        const DUPLICATES = 15; // Размножаем, чтобы строка была бесконечной
+                        const DUPLICATES = 15;
                         for(let k=0; k<DUPLICATES; k++) multipliedItems.push(...row.items);
                         
-                        // ВАЖНО: Физически постоянная скорость!
-                        // Время = (Секунды на 1 элемент) * (Общее количество элементов в длинной ленте)
                         const timePerItem = row.speed !== undefined ? row.speed : 5;
                         const totalDuration = timePerItem * multipliedItems.length;
 
@@ -1373,9 +1392,6 @@
 
         async function copyObsUrl() {
             if(!currentWidget) return;
-            
-            // ВАЖНО: Принудительно сохраняем виджет в БД перед копированием ссылки, 
-            // чтобы OBS всегда получал последние настройки.
             await saveWidget();
             
             const url = new URL(window.location.href);
