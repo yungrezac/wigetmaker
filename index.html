@@ -711,7 +711,10 @@
         async function loadWidgets() { 
             const listEl = document.getElementById('widgets-list');
             listEl.innerHTML = '<div class="text-center text-slate-500 py-8 text-sm"><i class="fas fa-circle-notch fa-spin text-xl mb-2"></i></div>';
-            const { data, error } = await supabase.from('p_widgets').select('*').order('created_at', { ascending: false });
+           const { data, error } = await supabase.from('p_widgets')
+               .select('*')
+               .eq('user_id', currentUser.id) 
+               .order('created_at', { ascending: false });
             if (error) return listEl.innerHTML = '<div class="text-red-400 text-sm p-4 text-center">Ошибка загрузки</div>';
             widgets = data || [];
             renderWidgetList();
